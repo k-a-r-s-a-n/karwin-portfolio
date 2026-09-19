@@ -1,0 +1,29 @@
+{
+  "name": "Karwin",
+  "handle": "k-a-r-s-a-n",
+  "role": "Software Engineer & Builder",
+  "status": "Available for Hackathons & High-Impact Projects",
+  "bio": "Computer Science student at VIT Chennai (2025–2029) and alumnus of PSBB Siruseri. Building at the intersection of decentralized state machines, geospatial community networks, and autonomous LLM reasoning systems. Dedicated to verifiable architectures, clean interfaces, and low-latency digital tools.",
+  "location": "Chennai, India",
+  "email": "karwin.s.mailme@gmail.com",
+  "instagram": "https://www.instagram.com/krsc_26307/",
+  "github": "https://github.com/k-a-r-s-a-n",
+  "education": [
+    {
+      "institution": "Vellore Institute of Technology, Chennai",
+      "degree": "B.Tech in Computer Science & Engineering",
+      "period": "2025 – 2029",
+      "badge": "Undergraduate",
+      "focus": "Full-Stack Engineering, Distributed Systems, Cryptographic Ledgers"
+    },
+    {
+      "institution": "PSBB Millennium / Siruseri",
+      "degree": "Senior Secondary (10th & 12th)",
+      "period": "2023 – 2025",
+      "badge": "Graduated",
+      "focus": "Computer Science, Mathematics & Physics"
+    }
+  ],
+  "mission": "To engineer reliable decentralized applications, civic infrastructure, and agent systems that solve tangible problems.",
+  "quote": "Still learning, still building — one commit at a time."
+}

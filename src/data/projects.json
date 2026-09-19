@@ -1,0 +1,110 @@
+[
+  {
+    "id": "car-passport",
+    "title": "Car-Passport",
+    "subtitle": "Layer-2 Polygon Amoy DApp for Tamper-Proof Vehicle Service Ledgers",
+    "description": "A decentralized public ledger protocol binding each vehicle's unique VIN to an on-chain, append-only service and maintenance record. The Solidity smart contract enforces odometer integrity at the EVM state level: it strictly reverts any odometer entry lower than the previous reading, mathematically eradicating vehicle mileage rollback fraud.",
+    "longDescription": "Built on the Polygon Amoy testnet for sub-second confirmations and negligible gas overhead. Features cryptographic VIN hash lookup, multi-signatory service technician validation, and an unforgeable digital vehicle passport accessible to prospective buyers via QR code or direct on-chain verification.",
+    "tags": ["Blockchain", "Solidity", "Polygon Amoy", "JavaScript", "Ethers.js", "Web3"],
+    "category": "Web3 & Blockchain",
+    "year": "2025",
+    "status": "Active & Verified",
+    "github": "https://github.com/k-a-r-s-a-n/Car-Passport",
+    "liveUrl": "https://github.com/k-a-r-s-a-n/Car-Passport",
+    "coverImage": "/images/projects/car-passport.jpg",
+    "accentColor": "#8B5CF6",
+    "glowColor": "rgba(139, 92, 246, 0.45)",
+    "highlights": [
+      "Protocol-level odometer rollback prevention via EVM assertions",
+      "Layer-2 Polygon Amoy deployment for ultra-low gas minting",
+      "Direct VIN hash cryptographic mapping & tamper-proof history",
+      "Decentralized service station verification signature scheme"
+    ],
+    "metrics": {
+      "network": "Polygon Amoy",
+      "gasEfficiency": "99.4% L1 Reduction",
+      "security": "Immutable Smart Contract"
+    }
+  },
+  {
+    "id": "civiclens",
+    "title": "CivicLens",
+    "subtitle": "Live Public Civic Map & Ward Accountability Leaderboard for Indian Cities",
+    "description": "A geospatial civic transparency and governance platform engineered for radical accountability in urban infrastructure. Citizens report, visualize, and track municipal infrastructure issues across city wards with live heatmaps and ranked civic ward scorecards, putting measurable performance data directly in the public sphere.",
+    "longDescription": "Engineered with TypeScript, high-performance geospatial mapping, and automated ward-level resolution tracking. Incorporates crowd-sourced issue verification, priority weighting based on citizen density, and automated civic department escalation pipelines.",
+    "tags": ["TypeScript", "Next.js", "Geospatial Maps", "Civic Tech", "Full-Stack", "Node.js"],
+    "category": "Civic Tech & Maps",
+    "year": "2025",
+    "status": "Live & Deployed",
+    "github": "https://github.com/k-a-r-s-a-n/CivicLens",
+    "liveUrl": "https://github.com/k-a-r-s-a-n/CivicLens",
+    "coverImage": "/images/projects/civiclens.jpg",
+    "accentColor": "#3B82F6",
+    "glowColor": "rgba(59, 130, 246, 0.45)",
+    "highlights": [
+      "Interactive geospatial incident heatmap with sub-meter clustering",
+      "Municipal ward performance scoring and resolution leaderboard",
+      "Radical civic transparency with public grievance status verification",
+      "Real-time municipal SLA response analytics and breakdown curves"
+    ],
+    "metrics": {
+      "transparency": "100% Public Open Data",
+      "mappingEngine": "Geospatial Vector Tiles",
+      "architecture": "Full-Stack TypeScript"
+    }
+  },
+  {
+    "id": "chip-design-automation",
+    "title": "AI-Assisted Chip Design Automation",
+    "subtitle": "Multi-Model Natural Language to Verified Hardware Verilog Synthesis",
+    "description": "A cutting-edge hardware-AI synthesis engine leveraging multi-model LLM orchestration to translate plain-text architectural specifications directly into synthesizable Verilog code. Automatically generates comprehensive hardware testbenches, runs behavioral verification passes, and flags logic hazards before physical tape-out.",
+    "longDescription": "Bridges digital VLSI design with generative AI. Utilizes prompt engineering strategies tailored for hardware description languages, automated syntax AST parsing, and closed-loop testbench generation that iteratively runs simulation checks to debug timing and latch anomalies.",
+    "tags": ["Python", "Verilog", "AI/LLM", "Hardware Synthesis", "LangChain", "Autonomous Agents"],
+    "category": "AI & Hardware Architecture",
+    "year": "2025",
+    "status": "Research & Prototype",
+    "github": "https://github.com/k-a-r-s-a-n/AI-assisted-chip-design-automation",
+    "liveUrl": "https://github.com/k-a-r-s-a-n/AI-assisted-chip-design-automation",
+    "coverImage": "/images/projects/chip-design.jpg",
+    "accentColor": "#EC4899",
+    "glowColor": "rgba(236, 72, 153, 0.45)",
+    "highlights": [
+      "Prompt-to-Verilog LLM synthesis engine with architectural AST validation",
+      "Automated simulation testbench generation and corner-case stimulation",
+      "Logic hazard, race condition, and unintentional latch detection",
+      "Iterative multi-model agent refinement loop for syntax correction"
+    ],
+    "metrics": {
+      "automation": "Zero-to-Verilog in Seconds",
+      "coverage": "Automated Testbench Suites",
+      "foundation": "Multi-Model LLM Orchestration"
+    }
+  },
+  {
+    "id": "campus-quicksplit",
+    "title": "Campus QuickSplit",
+    "subtitle": "Local-First Peer Expense Tracker for Students Built with Flutter",
+    "description": "A lightning-fast, zero-friction peer expense splitter built for college campuses. Operates on a local-first philosophy with no required user accounts, cloud logins, or server dependencies. Students calculate fair split debts, track shared balances, and resolve IOUs instantly offline.",
+    "longDescription": "Crafted with Flutter and Dart for buttery 60 FPS mobile transitions and haptic micro-interactions. Features a greedy debt simplification graph algorithm that reduces complex group balances down to the minimum possible number of individual peer transactions.",
+    "tags": ["Flutter", "Dart", "Mobile", "Local-First", "Greedy Algorithm", "UI/UX"],
+    "category": "Mobile & Local-First",
+    "year": "2025",
+    "status": "Available & Open Source",
+    "github": "https://github.com/k-a-r-s-a-n/campus-quicksplit",
+    "liveUrl": "https://github.com/k-a-r-s-a-n/campus-quicksplit",
+    "coverImage": "/images/projects/quicksplit.jpg",
+    "accentColor": "#10B981",
+    "glowColor": "rgba(16, 185, 129, 0.45)",
+    "highlights": [
+      "100% offline local-first data architecture with zero server latency",
+      "Greedy debt minimization graph algorithm to cut transaction count",
+      "Slick Flutter gestures, spring physics, and intuitive split controls",
+      "Privacy-preserving design with no tracking, registration, or logins"
+    ],
+    "metrics": {
+      "latency": "0ms (Offline First)",
+      "algorithm": "Min-Transaction Debt Graph",
+      "platform": "Cross-Platform Flutter"
+    }
+  }
+]

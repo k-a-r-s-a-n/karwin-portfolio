@@ -1,0 +1,247 @@
+@import "tailwindcss";
+
+@theme {
+  --color-chassis: var(--chassis);
+  --color-surface: var(--surface);
+  --color-seam: var(--seam);
+  --color-panel-recess: var(--panel-recess);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-safety-orange: var(--safety-orange);
+  --color-safety-green: var(--safety-green);
+  --color-accent: var(--accent);
+}
+
+:root {
+  --chassis: #F4F4F5;
+  --surface: #FFFFFF;
+  --seam: #D4D4D8;
+  --panel-recess: #E4E4E7;
+  --ink: #18181B;
+  --ink-muted: #71717A;
+  --safety-orange: #FF3322;
+  --safety-green: #16A34A;
+  --accent: var(--safety-orange);
+
+  /* ─── Liquid Glass Design Tokens (Light) ─── */
+  --glass-bg: rgba(255, 255, 255, 0.72);
+  --glass-border-start: rgba(255, 255, 255, 0.85);
+  --glass-border-end: rgba(255, 255, 255, 0.15);
+  --glass-inner-highlight: inset 0 1px 1px 0 rgba(255, 255, 255, 0.85), inset 0 -1px 1px 0 rgba(24, 24, 27, 0.04);
+  --glass-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.08);
+
+  /* ─── ScrollFlow Atmosphere (Light) ─── */
+  --bg-mesh-1: rgba(255, 51, 34, 0.06);
+  --bg-mesh-2: rgba(22, 163, 74, 0.04);
+  --bg-mesh-3: rgba(14, 165, 233, 0.05);
+}
+
+html.dark {
+  --chassis: #09090B;
+  --surface: #141417;
+  --seam: #27272A;
+  --panel-recess: #18181B;
+  --ink: #F4F4F5;
+  --ink-muted: #A1A1AA;
+  --safety-orange: #FF4D36;
+  --safety-green: #22C55E;
+  --accent: var(--safety-orange);
+
+  /* ─── Liquid Glass Design Tokens (Dark) ─── */
+  --glass-bg: rgba(20, 20, 24, 0.68);
+  --glass-border-start: rgba(255, 255, 255, 0.25);
+  --glass-border-end: rgba(255, 255, 255, 0.03);
+  --glass-inner-highlight: inset 0 1px 1px 0 rgba(255, 255, 255, 0.22), inset 0 -1px 1px 0 rgba(0, 0, 0, 0.5);
+  --glass-shadow: 0 16px 40px -12px rgba(0, 0, 0, 0.65);
+
+  /* ─── ScrollFlow Atmosphere (Dark) ─── */
+  --bg-mesh-1: rgba(255, 77, 54, 0.09);
+  --bg-mesh-2: rgba(34, 197, 94, 0.04);
+  --bg-mesh-3: rgba(99, 102, 241, 0.07);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: auto;
+  background-color: var(--chassis);
+  color: var(--ink);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+body {
+  background-color: var(--chassis);
+  color: var(--ink);
+  overflow-x: hidden;
+  position: relative;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+::selection {
+  background: var(--safety-orange);
+  color: #ffffff;
+}
+
+/* ─── Lenis Smooth Scroll ─── */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+.lenis.lenis-scrolling iframe {
+  pointer-events: none;
+}
+
+/* ─── Industrial Hardware Scrollbar ─── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--panel-recess);
+  border-left: 1px solid var(--seam);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--safety-orange);
+  border-radius: 0px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #e02817;
+}
+
+/* ─── Hardware Grid Seams ─── */
+.panel-grid {
+  background-size: 32px 32px;
+  background-image:
+    linear-gradient(to right, var(--seam) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--seam) 1px, transparent 1px);
+  background-position: top left;
+}
+
+/* ─── Mechanical Seam Border Utility ─── */
+.seam-border {
+  border: 1px solid var(--seam);
+}
+
+.seam-x {
+  border-left: 1px solid var(--seam);
+  border-right: 1px solid var(--seam);
+}
+
+.seam-y {
+  border-top: 1px solid var(--seam);
+  border-bottom: 1px solid var(--seam);
+}
+
+/* ─── Industrial Panel Faces ─── */
+.panel-surface {
+  background-color: var(--surface);
+  border: 1px solid var(--seam);
+}
+
+.panel-recess {
+  background-color: var(--panel-recess);
+  border: 1px solid var(--seam);
+}
+
+/* ─── Hardware Corner Rivet / Bolt Graphic ─── */
+.has-rivets {
+  position: relative;
+}
+
+.has-rivets::before,
+.has-rivets::after {
+  content: "";
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  background-color: var(--ink-muted);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.has-rivets::before {
+  top: 6px;
+  left: 6px;
+  box-shadow: 0 0 0 1px var(--seam);
+}
+
+.has-rivets::after {
+  top: 6px;
+  right: 6px;
+  box-shadow: 0 0 0 1px var(--seam);
+}
+
+/* ─── Safety Orange Indicator Tag ─── */
+.badge-orange {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background-color: var(--safety-orange);
+  color: #FFFFFF;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 2px 6px;
+  text-transform: uppercase;
+}
+
+.badge-zinc {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background-color: var(--panel-recess);
+  color: var(--ink);
+  border: 1px solid var(--seam);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: 2px 6px;
+  text-transform: uppercase;
+}
+
+/* ─── Button Shimmer Keyframes ─── */
+@keyframes shimmer-sweep {
+  0% {
+    transform: translateX(-150%) skewX(-20deg);
+  }
+  100% {
+    transform: translateX(180%) skewX(-20deg);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer-sweep 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* ─── Desktop Custom Cursor suppression ─── */
+@media (hover: hover) and (pointer: fine) {
+  body.has-custom-cursor,
+  body.has-custom-cursor a,
+  body.has-custom-cursor button,
+  body.has-custom-cursor input,
+  body.has-custom-cursor select {
+    cursor: none !important;
+  }
+}
