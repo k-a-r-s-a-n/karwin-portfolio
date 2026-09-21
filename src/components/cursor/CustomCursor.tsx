@@ -79,7 +79,7 @@ export default function CustomCursor() {
     let lastY = window.innerHeight / 2;
     let rafId = 0;
     let running = false;
-    let hideTimer = 0;
+    const hideTimer = 0;
 
     const INTERACTIVE_SELECTOR =
       "a, button, [role='button'], input, textarea, select, label, summary";

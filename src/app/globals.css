@@ -286,8 +286,8 @@ button:focus-visible,
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-  html.cursor-active body,
-  html.cursor-active body * {
-    cursor: auto !important;
+  .cursor-aura,
+  .cursor-canvas {
+    display: none;
   }
 }
