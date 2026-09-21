@@ -33,7 +33,7 @@ const jetbrainsMono = localFont({
   weight: "100 800",
 });
 
-const SITE_URL = "https://karwin.dev";
+const SITE_URL = "https://karwin-portfolio.vercel.app";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
