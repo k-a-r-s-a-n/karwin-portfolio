@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import SmoothScrollProvider from "@/components/providers/SmoothScrollProvider";
-import CustomCursor from "@/components/cursor/CustomCursor";
 import Preloader from "@/components/ui/Preloader";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -138,7 +137,6 @@ export default function RootLayout({
 
         <Preloader />
         <SmoothScrollProvider>
-          <CustomCursor />
           <Navbar />
           <main id="main-content" className="relative z-10 flex min-h-screen flex-col">
             {children}

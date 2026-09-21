@@ -144,44 +144,6 @@ button:focus-visible,
   border-radius: 2px;
 }
 
-/* ─── Cursor Aura ───
-   Decorative companion to the NATIVE cursor, which stays fully visible.
-   The ring is glued to the pointer (instant follow) — it can never become
-   a second cursor. The waving silk trail lives on a click-transparent
-   canvas (.cursor-canvas). */
-.cursor-aura {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 9998;
-  width: 34px;
-  height: 34px;
-  border-radius: 9999px;
-  border: 1px solid rgba(242, 241, 236, 0.4);
-  pointer-events: none;
-  will-change: transform;
-  transition: width 160ms ease, height 160ms ease, border-color 160ms ease,
-    background-color 160ms ease;
-}
-
-.cursor-aura-active {
-  width: 52px;
-  height: 52px;
-  border-color: rgba(201, 241, 88, 0.85);
-  background-color: rgba(201, 241, 88, 0.07);
-}
-
-.cursor-aura-down {
-  border-color: var(--accent);
-}
-
-.cursor-canvas {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  pointer-events: none;
-}
-
 /* ─── Film grain overlay ─── */
 .grain {
   position: fixed;
@@ -285,9 +247,5 @@ button:focus-visible,
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
-  }
-  .cursor-aura,
-  .cursor-canvas {
-    display: none;
   }
 }
