@@ -1,36 +1,50 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Karwin — Portfolio
 
-## Getting Started
+Personal portfolio of **Karwin ([@k-a-r-s-a-n](https://github.com/k-a-r-s-a-n))** — CS student at VIT Chennai building blockchain ledgers, geospatial tools, and LLM-powered agents.
 
-First, run the development server:
+Dark, editorial, and alive: an Instrument Serif voice over a near-black canvas, a liquid-metal 3D sculpture rendered in real time with react-three-fiber, type that reveals itself as you scroll, and a film-grain finish.
+
+## Stack
+
+- **Next.js (App Router) + TypeScript + Tailwind CSS v4**
+- **React Three Fiber + drei** — hero sculpture (lazy-loaded, single WebGL context, procedural — no external model/environment downloads)
+- **Framer Motion** — masked type reveals, word-by-word paragraphs, tilt cards, counters, preloader
+- **Lenis** — smooth scrolling (skipped for reduced-motion users)
+- Self-hosted fonts: Instrument Serif (display), Inter variable (body), JetBrains Mono (labels) — builds fully offline
+
+All content lives in `src/data/*.json` — projects, skills, profile, and stats are data, not markup.
+
+## Getting started
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev     # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+```bash
+npm run build   # production build
+npm run lint    # eslint
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Design notes
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Type system** — serif display with italic accent phrases; body copy reveals word-by-word on scroll (`FadeWords`); headlines reveal char-by-char from mask lines (`SplitReveal`).
+- **Splash** — plays on every load (skipped only for reduced-motion visitors via a pre-paint inline script), runs to 100%, waits for real page load, then lifts as the hero choreography begins.
+- **3D** — distorted metallic sphere + orbit rings + particles; rotates with scroll, tilts with the pointer; renders one static frame under reduced motion.
+- **Cursor** — the native cursor is used as-is; the site draws no pointer decoration (an embedded-webview round of "two cursors" settled it). The fluid pointer play lives in the contact field.
+- **Accessibility** — skip link, focus rings, focus-trapped modal, `aria-pressed`/`aria-live` where relevant, native cursor never hidden, all motion gated behind `prefers-reduced-motion`.
 
-## Learn More
+## Verification tooling
 
-To learn more about Next.js, take a look at the following resources:
+`scripts/` holds node-run audits (not part of the app bundle):
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- `physics-check.ts` — simulates the splash-field solver headlessly and asserts settling, non-overlap, sweep response, and click bursts (`npx tsc scripts/physics-check.ts --outDir /tmp/phys --module commonjs --target es2020 --esModuleInterop --skipLibCheck --moduleResolution node && node /tmp/phys/scripts/physics-check.js`)
+- `ui-audit.cjs`, `failsafe-audit.cjs`, `visual-probe2.cjs` — real-browser interaction audits (need `npm i -D puppeteer-core @sparticuz/chromium` and a running dev/prod server)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Deploy
 
-## Deploy on Vercel
+Any Next.js-capable host. Set `SITE_URL` in `src/app/layout.tsx` to the deployed URL so social tags resolve.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+© Karwin. Code is MIT-licensed (see `LICENSE`).

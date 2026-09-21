@@ -1,231 +1,172 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { Copy, Check, ArrowUpRight, Radio, Shield, Terminal } from "lucide-react";
+import React, { useState } from "react";
+import { Check, Copy, Mail } from "lucide-react";
 import { GithubIcon, InstagramIcon } from "@/components/ui/Icons";
 import profileData from "@/data/profile.json";
+import SplitReveal from "@/components/ui/AnimatedText";
 import Reveal from "@/components/ui/Reveal";
-import GlassSurface from "@/components/ui/GlassSurface";
-import InteractiveButton from "@/components/ui/InteractiveButton";
+import SplashField from "@/components/ui/SplashField";
 
+/**
+ * CH-05 — Contact, done as a full-bleed color-block finale (lusion-style):
+ * giant type over a playable field of liquid-confetti shapes. Stir the
+ * cursor through them and they scatter; stop, and they rain back down and
+ * settle like sand.
+ */
 export default function Contact() {
   const [copied, setCopied] = useState(false);
-  const [istTime, setIstTime] = useState("");
 
-  useEffect(() => {
-    const updateTime = () => {
-      const now = new Date();
-      const options: Intl.DateTimeFormatOptions = {
-        timeZone: "Asia/Kolkata",
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-        hour12: false,
-      };
-      setIstTime(now.toLocaleTimeString("en-GB", options));
-    };
-
-    updateTime();
-    const timer = setInterval(updateTime, 1000);
-    return () => clearInterval(timer);
-  }, []);
-
-  const copyEmail = () => {
-    navigator.clipboard.writeText(profileData.email);
+  const copyEmail = async () => {
+    try {
+      await navigator.clipboard.writeText(profileData.email);
+    } catch {
+      // Clipboard API unavailable — fall back to a hidden textarea.
+      const textarea = document.createElement("textarea");
+      textarea.value = profileData.email;
+      textarea.setAttribute("readonly", "");
+      textarea.style.position = "fixed";
+      textarea.style.opacity = "0";
+      document.body.appendChild(textarea);
+      textarea.select();
+      try {
+        document.execCommand("copy");
+      } catch {
+        window.location.href = `mailto:${profileData.email}`;
+      }
+      document.body.removeChild(textarea);
+    }
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const ink = "text-[#0c0c0d]";
+  const inkMuted = "text-[#0c0c0d]/65";
+  const inkFaint = "text-[#0c0c0d]/45";
+
   return (
     <section
       id="contact"
-      className="py-20 px-4 sm:px-8 max-w-7xl mx-auto"
+      className="relative min-h-[100svh] overflow-hidden bg-accent"
+      aria-label="Contact"
     >
-      <Reveal stagger={0.08}>
-        {/* Section Header Bar */}
-        <GlassSurface className="p-4 sm:px-6 flex flex-wrap items-center justify-between gap-4 text-xs font-mono mb-8 border border-seam">
-          <div className="flex items-center gap-3">
-            <span className="badge-orange">CH-05</span>
-            <span className="font-bold text-ink">SIGNAL TRANSMITTER &amp; DISPATCH</span>
-          </div>
-          <div className="text-ink-muted text-[11px] flex items-center gap-3">
-            <span className="flex items-center gap-1.5 text-safety-green font-semibold">
-              <Radio size={12} className="animate-pulse" />
-              RECEIVER ACTIVE
-            </span>
-            <span>&bull;</span>
-            <span>BAUD: 115200</span>
-          </div>
-        </GlassSurface>
+      {/* Playable liquid-confetti field */}
+      <SplashField className="absolute inset-0 h-full w-full" />
 
-        {/* Main Signal Transmitter Console */}
-        <div className="border border-seam bg-surface shadow-xs overflow-hidden">
-          {/* Console Header Bar */}
-          <div className="bg-panel-recess border-b border-seam px-6 py-3 flex items-center justify-between text-xs font-mono text-ink">
-            <div className="flex items-center gap-3">
-              <span className="w-2.5 h-2.5 bg-accent" />
-              <span className="font-bold tracking-wider">UNIT: TRANS-SYS-05 // DIRECT LINK</span>
+      {/* Content */}
+      <div className="relative z-10 mx-auto flex min-h-[100svh] max-w-6xl flex-col px-6 pb-16 pt-24 sm:px-10 sm:pt-28 lg:px-16">
+        <Reveal y={14}>
+          <p
+            className={`flex items-center gap-3 font-mono text-[11px] uppercase tracking-[0.25em] ${inkFaint}`}
+          >
+            <span className={ink}>05</span>
+            <span className="h-px w-8 bg-[#0c0c0d]/30" />
+            Contact — Chennai, IN
+          </p>
+        </Reveal>
+
+        {/* Headline */}
+        <h2 className={`mt-10 font-serif leading-[0.95] ${ink}`}>
+          <SplitReveal
+            as="span"
+            mode="words"
+            stagger={0.08}
+            segments={[{ text: "Let's build", className: ink }]}
+            className="block text-[clamp(2.9rem,8.5vw,7rem)]"
+          />
+          <SplitReveal
+            as="span"
+            mode="words"
+            stagger={0.08}
+            delay={0.12}
+            segments={[{ text: "something", className: "italic text-[#f2f1ec]" }]}
+            className="block text-[clamp(2.9rem,8.5vw,7rem)]"
+          />
+          <SplitReveal
+            as="span"
+            mode="words"
+            stagger={0.08}
+            delay={0.24}
+            segments={[{ text: "together.", className: ink }]}
+            className="block text-[clamp(2.9rem,8.5vw,7rem)]"
+          />
+        </h2>
+
+        {/* Sub-copy + email */}
+        <div className="mt-auto pt-16">
+          <Reveal y={18}>
+            <p className={`max-w-md text-base leading-relaxed ${inkMuted}`}>
+              Hackathons, internships, weird ideas at 2 AM — if it ends with
+              something real shipped, my inbox is open.
+            </p>
+          </Reveal>
+
+          <Reveal y={18} delay={0.08} className="mt-6">
+            <div className="flex flex-wrap items-center gap-4">
+              <a
+                href={`mailto:${profileData.email}`}
+                className={`link-sweep break-all font-serif text-xl sm:text-3xl ${ink}`}
+              >
+                {profileData.email}
+              </a>
+              <button
+                onClick={copyEmail}
+                aria-label={copied ? "Email copied" : "Copy email address"}
+                className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full border transition-colors ${
+                  copied
+                    ? "border-[#0c0c0d] bg-[#0c0c0d] text-accent"
+                    : "border-[#0c0c0d]/35 text-[#0c0c0d] hover:border-[#0c0c0d] hover:bg-[#0c0c0d] hover:text-accent"
+                }`}
+              >
+                {copied ? <Check size={15} /> : <Copy size={15} />}
+              </button>
+              <span
+                aria-live="polite"
+                className={`font-mono text-[10px] uppercase tracking-[0.2em] ${inkFaint}`}
+              >
+                {copied ? "Copied" : ""}
+              </span>
             </div>
-            <div className="text-ink-muted text-[11px]">
-              PROTOCOL: INBOX_RELAY_V2
-            </div>
-          </div>
+          </Reveal>
 
-          {/* 2-Column Console Layout */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 divide-y lg:divide-y-0 lg:divide-x divide-seam">
-            {/* Left Column: Primary Electronic Mail Dispatch (7 cols) */}
-            <div className="lg:col-span-7 p-6 sm:p-10 flex flex-col justify-between has-rivets bg-surface">
-              <div>
-                <div className="font-mono text-xs text-ink-muted uppercase mb-2 flex items-center gap-2">
-                  <Terminal size={14} className="text-accent" />
-                  <span>PRIMARY TELEMETRY DESTINATION</span>
-                </div>
-
-                <h2 className="text-2xl sm:text-4xl font-bold text-ink tracking-tight uppercase mb-4">
-                  OPEN CHANNELS // INITIATE TRANSMISSION
-                </h2>
-
-                <p className="text-sm sm:text-base text-ink/80 leading-relaxed mb-8 font-sans">
-                  Available for engineering high-integrity Web3 systems, autonomous agentic workflows, geospatial telemetry applications, and collegiate hackathons. Responses dispatched within 24 operational hours.
-                </p>
-
-                {/* Direct Address Display Box */}
-                <div className="p-4 sm:p-5 bg-panel-recess border border-seam mb-6">
-                  <div className="font-mono text-[10px] text-ink-muted uppercase mb-1">
-                    CARRIER ADDRESS
-                  </div>
-                  <div className="font-mono text-lg sm:text-2xl font-bold text-ink select-all break-all">
-                    {profileData.email}
-                  </div>
-                </div>
-
-                {/* Push Action Actuators */}
-                <div className="flex flex-wrap gap-4">
-                  <InteractiveButton
-                    onClick={copyEmail}
-                    variant="primary"
-                    isPrimary={true}
-                    distort={true}
-                    className="px-6 py-3.5 font-mono text-xs font-bold uppercase tracking-wider"
-                  >
-                    {copied ? (
-                      <>
-                        <Check size={16} className="text-white" />
-                        <span>COPIED TO BUFFER</span>
-                      </>
-                    ) : (
-                      <>
-                        <Copy size={16} />
-                        <span>COPY ADDRESS</span>
-                      </>
-                    )}
-                  </InteractiveButton>
-
-                  <InteractiveButton
-                    as="a"
-                    href={`mailto:${profileData.email}`}
-                    variant="outline"
-                    className="px-6 py-3.5 font-mono text-xs font-bold uppercase tracking-wider"
-                  >
-                    <span>LAUNCH COMPOSER</span>
-                    <ArrowUpRight size={16} />
-                  </InteractiveButton>
-                </div>
-              </div>
-
-              {/* Security & Verification Footer */}
-              <div className="mt-8 pt-6 border-t border-seam flex items-center gap-4 text-[11px] font-mono text-ink-muted">
-                <Shield size={14} className="text-safety-green" />
-                <span>END-TO-END TLS VERIFIED &bull; SPAM FILTER ACTIVE &bull; DIRECT RELAY</span>
-              </div>
+          {/* Socials + hint */}
+          <Reveal y={16} delay={0.14} className="mt-8 flex flex-wrap items-center justify-between gap-6">
+            <div className="flex items-center gap-2.5">
+              <a
+                href={profileData.github}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="GitHub"
+                className={`flex h-11 w-11 items-center justify-center rounded-full border transition-colors ${ink} border-[#0c0c0d]/35 hover:bg-[#0c0c0d] hover:text-accent`}
+              >
+                <GithubIcon size={16} />
+              </a>
+              <a
+                href={profileData.instagram}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Instagram"
+                className={`flex h-11 w-11 items-center justify-center rounded-full border transition-colors ${ink} border-[#0c0c0d]/35 hover:bg-[#0c0c0d] hover:text-accent`}
+              >
+                <InstagramIcon size={16} />
+              </a>
+              <a
+                href={`mailto:${profileData.email}`}
+                className={`ml-2 inline-flex items-center gap-2 rounded-full bg-[#0c0c0d] px-5 py-2.5 text-sm font-medium text-[#f2f1ec] transition-transform hover:scale-[1.03] active:scale-[0.98]`}
+              >
+                <Mail size={14} />
+                Say hello
+              </a>
             </div>
 
-            {/* Right Column: Auxiliary Channels & Operator Node (5 cols) */}
-            <div className="lg:col-span-5 p-6 sm:p-10 flex flex-col justify-between bg-panel-recess/60">
-              <div>
-                <div className="font-mono text-xs text-ink-muted uppercase mb-4">
-                  // AUXILIARY REGISTRIES &amp; BUS NODES
-                </div>
-
-                <div className="space-y-4 mb-8">
-                  {/* GitHub */}
-                  <a
-                    href={profileData.github}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="p-4 border border-seam bg-surface hover:border-ink transition-colors flex items-center justify-between group"
-                  >
-                    <div className="flex items-center gap-3">
-                      <GithubIcon size={20} className="text-ink" />
-                      <div>
-                        <div className="font-mono text-xs font-bold text-ink group-hover:text-accent transition-colors">
-                          GITHUB REGISTRY
-                        </div>
-                        <div className="font-mono text-[11px] text-ink-muted">
-                          @{profileData.handle} &bull; REPOS &amp; AUDITS
-                        </div>
-                      </div>
-                    </div>
-                    <ArrowUpRight size={16} className="text-ink-muted group-hover:text-accent transition-colors" />
-                  </a>
-
-                  {/* Instagram */}
-                  <a
-                    href={profileData.instagram}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="p-4 border border-seam bg-surface hover:border-ink transition-colors flex items-center justify-between group"
-                  >
-                    <div className="flex items-center gap-3">
-                      <InstagramIcon size={20} className="text-ink" />
-                      <div>
-                        <div className="font-mono text-xs font-bold text-ink group-hover:text-accent transition-colors">
-                          INSTAGRAM
-                        </div>
-                        <div className="font-mono text-[11px] text-ink-muted">
-                          @krsc_26307 &bull; OCCASIONAL DISPATCHES
-                        </div>
-                      </div>
-                    </div>
-                    <ArrowUpRight size={16} className="text-ink-muted group-hover:text-accent transition-colors" />
-                  </a>
-                </div>
-
-                {/* Node Telemetry Box */}
-                <div className="border border-seam bg-surface p-5 space-y-3 font-mono text-xs">
-                  <div className="text-[10px] text-ink-muted uppercase font-bold border-b border-seam pb-2">
-                    OPERATOR TELEMETRY
-                  </div>
-                  <div className="flex items-center justify-between text-ink">
-                    <span className="text-ink-muted">COORDINATES:</span>
-                    <span className="font-semibold">12.8406° N, 80.1534° E</span>
-                  </div>
-                  <div className="flex items-center justify-between text-ink">
-                    <span className="text-ink-muted">TIMEZONE:</span>
-                    <span className="font-semibold">IST (UTC+05:30)</span>
-                  </div>
-                  <div className="flex items-center justify-between text-ink">
-                    <span className="text-ink-muted">LOCAL CLOCK:</span>
-                    <span className="font-bold text-accent" suppressHydrationWarning>
-                      {istTime || "12:00:00"}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between text-ink">
-                    <span className="text-ink-muted">STATUS:</span>
-                    <span className="text-safety-green font-bold">ACCEPTING INCOMING DISPATCH</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Calibration Plate */}
-              <div className="mt-8 pt-4 border-t border-seam text-[10px] font-mono text-ink-muted flex items-center justify-between">
-                <span>SERIAL: TR-2026-CH05</span>
-                <span>CALIBRATED: 0.002mm</span>
-              </div>
-            </div>
-          </div>
+            <p
+              className={`font-mono text-[10px] uppercase tracking-[0.22em] ${inkFaint}`}
+            >
+              psst — move your cursor through the shapes
+            </p>
+          </Reveal>
         </div>
-      </Reveal>
+      </div>
     </section>
   );
 }

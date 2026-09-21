@@ -1,143 +1,82 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import rawSkills from "@/data/skills.json";
+import SectionHeading from "@/components/ui/SectionHeading";
 import Reveal from "@/components/ui/Reveal";
-import GlassSurface from "@/components/ui/GlassSurface";
+
+function MarqueeRow({
+  items,
+  direction,
+  duration,
+}: {
+  items: string[];
+  direction: "left" | "right";
+  duration: number;
+}) {
+  // Content is duplicated so the -50% translate loops seamlessly.
+  const doubled = [...items, ...items];
+  return (
+    <div className="marquee-mask overflow-hidden py-3">
+      <div
+        className={`marquee-track marquee-${direction}`}
+        style={{ "--marquee-duration": `${duration}s` } as React.CSSProperties}
+        aria-hidden="true"
+      >
+        {doubled.map((item, i) => (
+          <span key={i} className="flex shrink-0 items-center">
+            <span className="px-6 font-serif text-3xl text-ink/85 sm:text-4xl">
+              {item}
+            </span>
+            <span className="h-1.5 w-1.5 rounded-full bg-accent/70" />
+          </span>
+        ))}
+      </div>
+      {/* Screen readers get the plain list once */}
+      <ul className="sr-only">
+        {items.map((item) => (
+          <li key={item}>{item}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
 
 export default function TechStack() {
-  const [selectedCategory, setSelectedCategory] = useState<string>("all");
-
-  const categories = rawSkills.categories;
-  const inProgress = rawSkills.inProgress;
-
-  const filteredCategories =
-    selectedCategory === "all"
-      ? categories
-      : categories.filter((c) => c.id === selectedCategory);
+  const { marquee, marqueeAlt, learning } = rawSkills;
 
   return (
-    <section
-      id="skills"
-      className="py-20 px-4 sm:px-8 max-w-7xl mx-auto"
-    >
-      <Reveal stagger={0.08}>
-        {/* Section Header Bar */}
-        <GlassSurface className="p-4 sm:px-6 flex flex-wrap items-center justify-between gap-4 text-xs font-mono mb-8 border border-seam">
-          <div className="flex items-center gap-3">
-            <span className="badge-orange">CH-03</span>
-            <span className="font-bold text-ink">HARDWARE MATRIX &amp; FLUENCY SPEC</span>
-          </div>
+    <section id="stack" className="relative overflow-hidden py-28">
+      <div className="px-6 sm:px-10 lg:px-16">
+        <div className="mx-auto max-w-6xl">
+          <SectionHeading
+            index="03"
+            eyebrow="Toolkit"
+            lead="Weapons of"
+            accent="choice."
+          />
+        </div>
+      </div>
 
-          {/* Category Filter as segmented buttons */}
-          <div className="flex flex-wrap items-center border border-seam divide-x divide-seam bg-panel-recess">
-            <button
-              onClick={() => setSelectedCategory("all")}
-              className={`px-3 py-1 font-mono text-xs uppercase font-semibold transition-colors cursor-pointer ${
-                selectedCategory === "all"
-                  ? "bg-ink text-surface"
-                  : "text-ink/70 hover:bg-surface"
-              }`}
+      <Reveal className="mt-14" y={24}>
+        <MarqueeRow items={marquee} direction="left" duration={46} />
+        <MarqueeRow items={marqueeAlt} direction="right" duration={54} />
+      </Reveal>
+
+      <Reveal className="px-6 sm:px-10 lg:px-16" y={16}>
+        <div className="mx-auto mt-12 flex max-w-6xl flex-wrap items-center gap-3">
+          <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-faint">
+            Currently exploring
+          </span>
+          {learning.map((item) => (
+            <span
+              key={item}
+              className="rounded-full border border-line px-4 py-1.5 text-sm text-muted transition-colors hover:border-accent/50 hover:text-ink"
             >
-              ALL
-            </button>
-            {categories.map((cat) => (
-              <button
-                key={cat.id}
-                onClick={() => setSelectedCategory(cat.id)}
-                className={`px-3 py-1 font-mono text-xs uppercase font-semibold transition-colors cursor-pointer ${
-                  selectedCategory === cat.id
-                    ? "bg-ink text-surface"
-                    : "text-ink/70 hover:bg-surface"
-                }`}
-              >
-                {cat.name.split(" ")[0]}
-              </button>
-            ))}
-          </div>
-        </GlassSurface>
-
-        {/* Specification Tables by Category */}
-        <div className="flex flex-col gap-8">
-          {filteredCategories.map((category) => (
-            <GlassSurface key={category.id} className="border border-seam shadow-xs has-rivets">
-              {/* Category Header */}
-              <div className="flex items-center justify-between px-6 py-3 bg-panel-recess/80 border-b border-seam font-mono text-xs font-bold text-ink">
-                <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 bg-accent" />
-                  <span>MODULE // {category.name.toUpperCase()}</span>
-                </div>
-                <span className="text-ink-muted text-[11px]">
-                  {category.skills.length} INSTRUMENTS VERIFIED
-                </span>
-              </div>
-
-              {/* Matrix Table Rows */}
-              <div className="divide-y divide-seam">
-                {category.skills.map((skill) => (
-                  <div
-                    key={skill.name}
-                    className="grid grid-cols-1 md:grid-cols-12 gap-4 px-6 py-4 items-center hover:bg-panel-recess/50 transition-colors"
-                  >
-                    {/* Tool Name */}
-                    <div className="md:col-span-3 font-mono text-sm font-bold text-ink">
-                      {skill.name}
-                    </div>
-
-                    {/* Milled Progress Bar in Safety Orange */}
-                    <div className="md:col-span-4 flex items-center gap-3">
-                      <div className="flex-1 h-2 bg-panel-recess border border-seam overflow-hidden">
-                        <div
-                          className="h-full bg-accent"
-                          style={{ width: `${skill.level}%` }}
-                        />
-                      </div>
-                      <span className="font-mono text-xs font-bold text-ink w-12 text-right">
-                        {skill.level}%
-                      </span>
-                    </div>
-
-                    {/* Application Note */}
-                    <div className="md:col-span-5 font-mono text-xs text-ink-muted">
-                      // {skill.highlight}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </GlassSurface>
+              {item}
+            </span>
           ))}
         </div>
-
-        {/* Active Research & Learning Vectors Drawer */}
-        <GlassSurface className="mt-10 border border-ink shadow-xs has-rivets p-6 sm:p-8">
-          <div className="flex items-center justify-between border-b border-seam pb-3 mb-6">
-            <div className="flex items-center gap-2 font-mono text-xs text-accent font-bold uppercase">
-              <span className="w-2 h-2 bg-accent" />
-              <span>ACTIVE RESEARCH &amp; LEARNING VECTORS</span>
-            </div>
-            <span className="badge-zinc">CONTINUOUS DEPLOYMENT</span>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {inProgress.map((item, idx) => (
-              <div key={idx} className="border border-seam bg-panel-recess p-4">
-                <div className="flex items-center justify-between text-xs font-mono mb-2">
-                  <span className="font-bold text-ink">{item.subject}</span>
-                  <span className="text-accent font-bold">{item.progress}%</span>
-                </div>
-                <div className="font-mono text-[10px] text-ink-muted uppercase mb-3">
-                  DOMAIN: {item.badge}
-                </div>
-                <div className="w-full h-1.5 bg-panel-recess border border-seam overflow-hidden">
-                  <div
-                    className="h-full bg-ink"
-                    style={{ width: `${item.progress}%` }}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-        </GlassSurface>
       </Reveal>
     </section>
   );

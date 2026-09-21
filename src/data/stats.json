@@ -1,21 +1,36 @@
 {
   "githubUsername": "k-a-r-s-a-n",
-  "stats": [
-    { "label": "Academic Status", "value": "2nd Year B.Tech CSE", "detail": "VIT Chennai (2025–2029)" },
-    { "label": "Key Open Source Projects", "value": "4+ Live", "detail": "Blockchain, Maps, AI & Mobile" },
-    { "label": "Vibe Coding Focus", "value": "Full-Stack + Agents", "detail": "100% Driven by Iterative AI" },
-    { "label": "Hackathon Mindset", "value": "Rapid Prototyping", "detail": "Always Brainstorming Solutions" }
+  "metrics": [
+    {
+      "value": 4,
+      "suffix": "",
+      "label": "Flagship builds",
+      "note": "shipped & open source",
+      "static": false
+    },
+    {
+      "value": 7,
+      "suffix": "",
+      "label": "Public repos",
+      "note": "on GitHub",
+      "static": false
+    },
+    {
+      "value": 20,
+      "suffix": "+",
+      "label": "Tools & technologies",
+      "note": "across the stack",
+      "static": false
+    },
+    {
+      "value": 2025,
+      "suffix": "",
+      "label": "Building since",
+      "note": "first commit \u2192 today",
+      "static": true
+    }
   ],
-  "badges": [
-    { "name": "AI-Dependent Vibe Coder", "icon": "sparkles", "color": "from-purple-500 to-indigo-500" },
-    { "name": "LLM & Agent Explorer", "icon": "bot", "color": "from-blue-500 to-cyan-500" },
-    { "name": "Hackathon Enthusiast", "icon": "rocket", "color": "from-pink-500 to-rose-500" },
-    { "name": "Frontends + Clean Backends", "icon": "layers", "color": "from-emerald-500 to-teal-500" }
-  ],
-  "trophies": [
-    { "title": "Solidity Smart Contract Deployer", "subtitle": "Car-Passport Polygon Amoy", "rank": "Gold" },
-    { "title": "Civic Open Data Architect", "subtitle": "CivicLens Indian Ward Grid", "rank": "Emerald" },
-    { "title": "Hardware AI Synthesizer", "subtitle": "Prompt-to-Verilog Pipeline", "rank": "Ruby" },
-    { "title": "Local-First Flutter Engineer", "subtitle": "Campus QuickSplit Offline Graph", "rank": "Sapphire" }
-  ]
+  "github": {
+    "note": "Counts synced from the GitHub API \u2014 the live profile is the source of truth."
+  }
 }

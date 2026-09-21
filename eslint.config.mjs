@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Node-side tooling (browser audit harness), not app code:
+    "scripts/**",
   ]),
 ]);
 

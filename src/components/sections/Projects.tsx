@@ -2,13 +2,12 @@
 
 import React, { useState } from "react";
 import { ArrowUpRight } from "lucide-react";
-import { GithubIcon } from "@/components/ui/Icons";
 import Image from "next/image";
 import rawProjects from "@/data/projects.json";
 import ProjectModal, { ProjectData } from "@/components/ui/ProjectModal";
+import SectionHeading from "@/components/ui/SectionHeading";
 import Reveal from "@/components/ui/Reveal";
-import GlassSurface from "@/components/ui/GlassSurface";
-import InteractiveButton from "@/components/ui/InteractiveButton";
+import TiltCard from "@/components/ui/TiltCard";
 
 const projects = rawProjects as unknown as ProjectData[];
 
@@ -16,135 +15,78 @@ export default function Projects() {
   const [selectedProject, setSelectedProject] = useState<ProjectData | null>(null);
 
   return (
-    <section
-      id="projects"
-      className="py-20 px-4 sm:px-8 max-w-7xl mx-auto"
-    >
-      <Reveal stagger={0.08}>
-        {/* Section Header Bar */}
-        <GlassSurface className="p-4 sm:px-6 flex flex-wrap items-center justify-between gap-4 text-xs font-mono mb-8 border border-seam">
-          <div className="flex items-center gap-3">
-            <span className="badge-orange">CH-02</span>
-            <span className="font-bold text-ink">HARDWARE TESTBENCHES &amp; WORK MODULES</span>
-          </div>
-          <div className="text-ink-muted text-[11px]">
-            <span>INDEX: 04 ACTIVE CASSETTES</span>
-            <span className="mx-2">&bull;</span>
-            <span className="text-safety-green font-semibold">ALL COMPLIANT</span>
-          </div>
-        </GlassSurface>
+    <section id="work" className="relative px-6 py-28 sm:px-10 lg:px-16">
+      <div className="mx-auto max-w-6xl">
+        <SectionHeading
+          index="02"
+          eyebrow="Selected work"
+          lead="Things I've"
+          accent="built."
+        />
 
-        {/* Projects Cassette Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {projects.map((project, index) => {
-            const modNum = (index + 1).toString().padStart(2, "0");
-
-            return (
-              <GlassSurface
-                key={project.id}
-                as="article"
-                className="p-6 sm:p-8 flex flex-col justify-between shadow-xs has-rivets group border border-seam hover:border-ink transition-colors"
-              >
-                <div>
-                  {/* Module Serial Tag */}
-                  <div className="flex items-center justify-between font-mono text-xs text-ink-muted border-b border-seam pb-3 mb-6">
-                    <div className="flex items-center gap-2">
-                      <span className="badge-orange">MOD-{modNum}</span>
-                      <span className="font-bold text-ink uppercase">{project.category}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-[11px]">
-                      <span>YR: {project.year}</span>
-                      <span>&bull;</span>
-                      <span className="text-safety-green font-semibold flex items-center gap-1">
-                        <span className="w-1.5 h-1.5 rounded-full bg-safety-green" />
-                        {project.status}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Industrial Media Frame */}
+        <div className="mt-16 grid grid-cols-1 gap-x-8 gap-y-16 md:grid-cols-2">
+          {projects.map((project, index) => (
+            <Reveal key={project.id} y={36} className={index % 2 === 1 ? "md:mt-16" : ""}>
+              <TiltCard maxTilt={5}>
+                <article
+                  className="group cursor-pointer"
+                  onClick={() => setSelectedProject(project)}
+                >
+                  {/* Cover — image pushes back in 3D while the card tilts */}
                   <div
-                    onClick={() => setSelectedProject(project)}
-                    className="relative w-full aspect-[16/10] border border-seam bg-panel-recess p-2 overflow-hidden cursor-pointer group-hover:border-accent transition-colors mb-6"
+                    className="relative aspect-[16/10] overflow-hidden rounded-2xl border border-line bg-surface"
+                    style={{ transform: "translateZ(0)" }}
                   >
-                    <div className="relative w-full h-full overflow-hidden">
-                      <Image
-                        src={project.coverImage}
-                        alt={project.title}
-                        fill
-                        sizes="(max-width: 768px) 100vw, 50vw"
-                        className="object-cover group-hover:scale-103 transition-transform duration-500"
-                      />
-                    </div>
-                    <div className="absolute top-3 left-3 bg-ink/90 text-surface font-mono text-[9px] px-2 py-0.5 uppercase font-bold tracking-wider">
-                      MODULE CASSETTE #{modNum}
-                    </div>
-                  </div>
-
-                  {/* Title & Subtitle */}
-                  <h3
-                    onClick={() => setSelectedProject(project)}
-                    className="text-2xl sm:text-3xl font-bold tracking-tight text-ink uppercase mb-2 cursor-pointer group-hover:text-accent transition-colors"
-                  >
-                    {project.title}
-                  </h3>
-
-                  <div className="font-mono text-xs text-ink-muted mb-4 font-semibold">
-                    // {project.subtitle}
-                  </div>
-
-                  <p className="text-sm text-ink/75 leading-relaxed font-sans mb-6">
-                    {project.description}
-                  </p>
-
-                  {/* Tech Bracketed Tags */}
-                  <div className="flex flex-wrap gap-1.5 mb-6 font-mono text-[11px]">
-                    {project.tags.map((tag) => (
-                      <span
-                        key={tag}
-                        className="px-2 py-0.5 bg-panel-recess text-ink border border-seam font-medium"
-                      >
-                        [{tag}]
+                    <Image
+                      src={project.coverImage}
+                      alt={`${project.title} — project cover`}
+                      fill
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                      className="object-cover transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.05]"
+                    />
+                    {/* Hover wash */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-bg/70 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+                    <div className="absolute bottom-4 left-4 right-4 flex translate-y-3 items-center justify-between opacity-0 transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100">
+                      <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-ink">
+                        View case study
                       </span>
-                    ))}
+                      <span className="flex h-8 w-8 items-center justify-center rounded-full bg-accent text-bg">
+                        <ArrowUpRight size={15} />
+                      </span>
+                    </div>
                   </div>
-                </div>
 
-                {/* Action Buttons */}
-                <div className="pt-4 border-t border-seam flex flex-wrap items-center justify-between gap-4 font-mono text-xs">
-                  <InteractiveButton
-                    onClick={() => setSelectedProject(project)}
-                    variant="primary"
-                    isPrimary={true}
-                    className="px-4 py-2 uppercase font-bold text-xs"
-                  >
-                    <span>INSPECT TESTBENCH DOSSIER</span>
-                    <ArrowUpRight size={14} />
-                  </InteractiveButton>
+                  {/* Meta */}
+                  <div className="mt-5 flex items-start justify-between gap-4">
+                    <div>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedProject(project);
+                        }}
+                        className="text-left font-serif text-2xl text-ink transition-colors duration-200 hover:text-accent sm:text-3xl"
+                      >
+                        {project.title}
+                      </button>
+                      <p className="mt-1 text-sm text-muted">{project.subtitle}</p>
+                    </div>
+                    <span className="mt-2 shrink-0 font-mono text-[11px] tracking-widest text-faint">
+                      {project.year}
+                    </span>
+                  </div>
 
-                  <InteractiveButton
-                    as="a"
-                    href={project.github}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    variant="secondary"
-                    className="px-3 py-1.5 text-ink-muted hover:text-ink"
-                  >
-                    <GithubIcon size={14} />
-                    <span>REPO</span>
-                  </InteractiveButton>
-                </div>
-              </GlassSurface>
-            );
-          })}
+                  {/* Tags — quiet, mono, dotted */}
+                  <p className="mt-3 font-mono text-[10px] uppercase tracking-[0.18em] text-faint">
+                    {project.tags.join(" · ")}
+                  </p>
+                </article>
+              </TiltCard>
+            </Reveal>
+          ))}
         </div>
-      </Reveal>
+      </div>
 
-      {/* Inspection Modal */}
-      <ProjectModal
-        project={selectedProject}
-        onClose={() => setSelectedProject(null)}
-      />
+      <ProjectModal project={selectedProject} onClose={() => setSelectedProject(null)} />
     </section>
   );
 }

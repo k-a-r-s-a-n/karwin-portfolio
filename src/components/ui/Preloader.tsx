@@ -1,145 +1,213 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-const CALIBRATION_LOGS = [
-  "[BOOT] INITIALIZING INDUSTRIAL CHASSIS BUS ... OK",
-  "[CMM] CALIBRATING MEASURING PROBE STYLUS (0.002mm) ... OK",
-  "[L2_BUS] MOUNTING POLYGON AMOY LEDGER INTERFACE ... OK",
-  "[GIS] CONNECTING CIVICLENS GEOSPATIAL NODES ... OK",
-  "[SYS] ALL CONTROL REGISTERS OPERATIONAL",
+const NAME = "KARWIN".split("");
+
+// How long the sequence runs at minimum — long enough to actually be seen.
+const MIN_DURATION_MS = 2600;
+// Held at 100% before the curtain lifts, so "Ready" registers.
+const SETTLE_MS = 420;
+// Never hold the page hostage for a slow connection beyond this.
+const MAX_EXTRA_WAIT_MS = 1600;
+
+const STATUS_LINES = [
+  "Warming up the GPU",
+  "Kerning the display type",
+  "Seeding the particle field",
+  "Polishing pixels",
 ];
 
+const easeInOutCubic = (t: number) =>
+  t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+
+/**
+ * Boot sequence — plays on every load (the signature moment), never for
+ * reduced-motion visitors. The inline script in layout.tsx decides before
+ * first paint (`skip-boot` = show the page instantly) and hides the page
+ * (`is-booting`) until the curtain lifts.
+ *
+ * The counter runs to 100%, then waits for the document to actually finish
+ * loading (bounded), settles on "Ready", and only then lifts.
+ */
 export default function Preloader() {
-  const [stepIndex, setStepIndex] = useState(0);
+  const [progress, setProgress] = useState(0);
+  const [status, setStatus] = useState<string | null>(STATUS_LINES[0]);
   const [isComplete, setIsComplete] = useState(false);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setStepIndex((prev) => {
-        if (prev < CALIBRATION_LOGS.length - 1) {
-          return prev + 1;
-        }
-        return prev;
-      });
-    }, 650);
+    if (document.documentElement.classList.contains("skip-boot")) {
+      queueMicrotask(() => setIsComplete(true));
+      return;
+    }
 
-    const timer = setTimeout(() => {
-      setIsComplete(true);
-    }, 3400);
+    document.documentElement.classList.add("is-booting");
+
+    const start = performance.now();
+    let rafId = 0;
+    let settleTimer = 0;
+    let finished = false;
+
+    const statusInterval = window.setInterval(() => {
+      setStatus((prev) => {
+        const idx = STATUS_LINES.indexOf(prev ?? "");
+        return STATUS_LINES[(idx + 1) % STATUS_LINES.length] ?? null;
+      });
+    }, 900);
+
+    const finish = () => {
+      if (finished) return;
+      finished = true;
+      clearInterval(statusInterval);
+      setStatus(null);
+      setProgress(100);
+      // Let "Ready / 100%" register before the lift.
+      settleTimer = window.setTimeout(() => {
+        document.documentElement.classList.remove("is-booting");
+        setIsComplete(true);
+      }, SETTLE_MS);
+    };
+
+    const tick = (now: number) => {
+      const elapsed = now - start;
+      const t = Math.min(elapsed / MIN_DURATION_MS, 1);
+      setProgress(Math.round(easeInOutCubic(t) * 100));
+
+      if (t < 1) {
+        rafId = requestAnimationFrame(tick);
+        return;
+      }
+
+      // Time is up — but if the document is still loading, give it a bounded
+      // grace period so the "load" feels real, not theatrical.
+      if (
+        document.readyState === "complete" ||
+        elapsed > MIN_DURATION_MS + MAX_EXTRA_WAIT_MS
+      ) {
+        finish();
+      } else {
+        window.addEventListener("load", finish, { once: true });
+        // Re-check periodically in case `load` already fired between ticks.
+        rafId = requestAnimationFrame(tick);
+      }
+    };
+    rafId = requestAnimationFrame(tick);
 
     return () => {
-      clearInterval(interval);
-      clearTimeout(timer);
+      cancelAnimationFrame(rafId);
+      clearInterval(statusInterval);
+      window.clearTimeout(settleTimer);
+      window.removeEventListener("load", finish);
+      document.documentElement.classList.remove("is-booting");
     };
   }, []);
+
+  // Tell the page (hero headline, nav, scene) that the stage is clear.
+  useEffect(() => {
+    if (isComplete) {
+      window.dispatchEvent(new Event("karwin:booted"));
+    }
+  }, [isComplete]);
+
+  const ready = progress >= 100;
 
   return (
     <AnimatePresence>
       {!isComplete && (
         <motion.div
+          data-boot-overlay
+          role="status"
+          aria-label="Loading portfolio"
           initial={{ opacity: 1 }}
           exit={{
-            clipPath: "inset(50% 0 50% 0)",
-            opacity: 0,
-            transition: { duration: 0.65, ease: [0.76, 0, 0.24, 1] },
+            y: "-100%",
+            transition: { duration: 0.9, ease: [0.76, 0, 0.24, 1] },
           }}
-          className="fixed inset-0 z-[100] flex flex-col justify-between p-6 sm:p-12 bg-chassis text-ink select-none pointer-events-auto panel-grid overflow-hidden border-8 border-panel-recess"
+          className="fixed inset-0 z-[100] flex flex-col justify-between bg-bg px-6 py-8 sm:px-12 sm:py-10"
         >
-          {/* Top Chassis Telemetry Bar */}
-          <div className="flex items-center justify-between border-b border-seam pb-3 text-xs font-mono">
-            <div className="flex items-center gap-3">
-              <span className="w-2.5 h-2.5 bg-accent animate-pulse" />
-              <span className="font-bold tracking-wider text-ink">
-                SYS-CAL // BOOT DIAGNOSTIC
+          {/* Faint breathing glow behind the name */}
+          <motion.div
+            aria-hidden="true"
+            className="pointer-events-none absolute left-1/2 top-1/2 h-[60vmin] w-[60vmin] -translate-x-1/2 -translate-y-1/2 rounded-full"
+            style={{
+              background:
+                "radial-gradient(circle, rgba(201,241,88,0.07) 0%, rgba(201,241,88,0) 70%)",
+            }}
+            animate={{ scale: [0.9, 1.08, 0.9], opacity: [0.6, 1, 0.6] }}
+            transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+          />
+
+          {/* Top row */}
+          <div className="relative flex items-center justify-between font-mono text-[11px] uppercase tracking-[0.2em] text-muted">
+            <span>Portfolio — 2026</span>
+            <span className="flex items-center gap-2">
+              <span className="inline-block h-1.5 w-1.5 rounded-full bg-accent" />
+              Chennai, IN
+            </span>
+          </div>
+
+          {/* Center: name reveal */}
+          <div className="relative flex flex-col items-center">
+            <h1 className="flex overflow-hidden font-serif text-[17vw] leading-none text-ink sm:text-[11vw] lg:text-[9.5rem]">
+              {NAME.map((char, i) => (
+                <motion.span
+                  key={i}
+                  initial={{ y: "112%", opacity: 0 }}
+                  animate={{ y: "0%", opacity: 1 }}
+                  transition={{
+                    duration: 1.0,
+                    ease: [0.22, 1, 0.36, 1],
+                    delay: 0.2 + i * 0.085,
+                  }}
+                  className="inline-block will-change-transform"
+                >
+                  {char}
+                </motion.span>
+              ))}
+            </h1>
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1.1, duration: 0.6 }}
+              className="mt-3 font-mono text-[11px] uppercase tracking-[0.35em] text-muted"
+            >
+              Systems engineer <span className="text-accent">&amp;</span> builder
+            </motion.p>
+          </div>
+
+          {/* Bottom: status + progress hairline + counter */}
+          <div className="relative">
+            <div className="mb-3 flex items-end justify-between">
+              <span
+                className="font-mono text-[11px] uppercase tracking-[0.2em] text-muted"
+                aria-live="off"
+              >
+                {ready ? (
+                  <span className="text-accent">Ready — welcome in</span>
+                ) : (
+                  <motion.span
+                    key={status ?? ""}
+                    initial={{ opacity: 0, y: 4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="inline-block"
+                  >
+                    {status}
+                  </motion.span>
+                )}
+              </span>
+              <span className="font-serif text-4xl tabular-nums text-ink">
+                {progress}
+                <span className="text-accent">%</span>
               </span>
             </div>
-            <div className="flex items-center gap-4 text-ink-muted text-[11px]">
-              <span>UNIT: KARWIN-CNC-01</span>
-              <span>&bull;</span>
-              <span>VIT CHENNAI '29</span>
+            <div className="h-px w-full bg-line">
+              <div
+                className="h-px bg-accent transition-[width] duration-150 ease-out"
+                style={{ width: `${progress}%` }}
+              />
             </div>
-          </div>
-
-          {/* Center Hardware Calibration Target & Coordinate Display */}
-          <div className="flex flex-col items-center justify-center my-auto">
-            {/* Precision Coordinate Reticle */}
-            <div className="relative w-48 h-48 sm:w-56 sm:h-56 flex items-center justify-center border border-seam bg-surface p-6 shadow-xs has-rivets">
-              <svg viewBox="0 0 100 100" className="w-full h-full" fill="none">
-                {/* Millimeter grid ticks */}
-                <circle
-                  cx="50"
-                  cy="50"
-                  r="42"
-                  stroke="var(--panel-recess)"
-                  strokeWidth="1"
-                  strokeDasharray="2 3"
-                />
-                <circle
-                  cx="50"
-                  cy="50"
-                  r="28"
-                  stroke="var(--seam)"
-                  strokeWidth="0.75"
-                />
-                <circle
-                  cx="50"
-                  cy="50"
-                  r="14"
-                  stroke="var(--safety-orange)"
-                  strokeWidth="1"
-                />
-
-                {/* Coordinate Crosshairs */}
-                <line x1="50" y1="4" x2="50" y2="96" stroke="var(--ink)" strokeWidth="0.75" />
-                <line x1="4" y1="50" x2="96" y2="50" stroke="var(--ink)" strokeWidth="0.75" />
-
-                {/* Rotating alignment bracket */}
-                <motion.rect
-                  x="36"
-                  y="36"
-                  width="28"
-                  height="28"
-                  stroke="var(--ink)"
-                  strokeWidth="1.25"
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
-                  style={{ originX: "50px", originY: "50px" }}
-                />
-
-                {/* Center ruby stylus point */}
-                <circle cx="50" cy="50" r="3" fill="var(--safety-orange)" />
-              </svg>
-
-              <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-ink text-surface font-mono text-[9px] px-2 py-0.5 uppercase tracking-widest font-bold">
-                PROBE CALIBRATED
-              </div>
-            </div>
-
-            {/* Diagnostic Log Readout */}
-            <div className="mt-10 max-w-lg w-full bg-surface border border-seam p-4 shadow-xs">
-              <div className="flex items-center justify-between text-[10px] font-mono text-ink-muted border-b border-seam pb-1.5 mb-2.5">
-                <span>TERMINAL LOG [PORT: TTY0]</span>
-                <span className="text-safety-green font-bold">RATE: 115200 BAUD</span>
-              </div>
-              <motion.div
-                key={stepIndex}
-                initial={{ opacity: 0, x: -4 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.2 }}
-                className="font-mono text-xs text-ink font-semibold"
-              >
-                &gt; {CALIBRATION_LOGS[stepIndex]}
-              </motion.div>
-            </div>
-          </div>
-
-          {/* Bottom Bus Status */}
-          <div className="flex items-center justify-between border-t border-seam pt-3 text-[11px] font-mono text-ink-muted">
-            <span>CHASSIS: INDUSTRIAL COLD-ROLLED STEEL</span>
-            <span className="text-accent font-bold">HARDWARE CONTROL READY</span>
-            <span>STANDBY DISPATCH</span>
           </div>
         </motion.div>
       )}

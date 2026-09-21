@@ -1,0 +1,11 @@
+Bundled web fonts - self-hosted so the app builds and runs without network
+access (also removes render-blocking third-party requests).
+
+- instrument-serif-latin-400-normal.woff2 / -italic.woff2
+    Instrument Serif - display typography (SIL Open Font License 1.1)
+- inter-latin-wght-normal.woff2
+    Inter (variable) - body and UI text (SIL Open Font License 1.1)
+- jetbrains-mono-latin.woff2
+    JetBrains Mono (variable) - small technical labels (SIL Open Font License 1.1)
+
+Upstream sources: https://github.com/fontsource/fontsource

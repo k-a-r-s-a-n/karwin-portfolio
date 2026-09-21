@@ -1,69 +1,71 @@
 "use client";
 
 import React from "react";
-import { motion, Variants } from "framer-motion";
+import { motion, type Variants, useReducedMotion } from "framer-motion";
 
-export interface RevealProps {
+/**
+ * Static map of motion components.
+ *
+ * These are created once at module scope on purpose: calling `motion(as)` inside
+ * the render body produces a brand-new component type on every render, which
+ * makes React unmount and remount the whole subtree (state resets, animations
+ * restart).
+ */
+const MOTION_TAGS = {
+  div: motion.div,
+  section: motion.section,
+  article: motion.article,
+  header: motion.header,
+  footer: motion.footer,
+  ul: motion.ul,
+  li: motion.li,
+  span: motion.span,
+} as const;
+
+type MotionTag = keyof typeof MOTION_TAGS;
+
+interface RevealProps {
   children: React.ReactNode;
   className?: string;
-  stagger?: number;
   delay?: number;
   duration?: number;
-  yOffset?: number;
-  as?: React.ElementType;
+  stagger?: number;
+  y?: number;
+  as?: MotionTag;
 }
-
-const defaultItemVariants: Variants = {
-  hidden: {
-    opacity: 0,
-    y: 32,
-  },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.55,
-      ease: [0.22, 1, 0.36, 1],
-    },
-  },
-};
 
 export default function Reveal({
   children,
   className = "",
-  stagger = 0.08,
   delay = 0,
   duration = 0.6,
-  yOffset = 40,
+  stagger = 0.08,
+  y = 24,
   as = "div",
 }: RevealProps) {
+  const shouldReduceMotion = useReducedMotion();
+  const MotionComponent = MOTION_TAGS[as] ?? motion.div;
+
   const containerVariants: Variants = {
-    hidden: { opacity: 0 },
+    hidden: {},
     visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: stagger,
-        delayChildren: delay,
-      },
+      transition: { staggerChildren: stagger, delayChildren: delay },
     },
   };
 
   const itemVariants: Variants = {
-    hidden: {
-      opacity: 0,
-      y: yOffset,
-    },
+    hidden: { opacity: 0, y },
     visible: {
       opacity: 1,
       y: 0,
-      transition: {
-        duration,
-        ease: [0.22, 1, 0.36, 1],
-      },
+      transition: { duration, ease: [0.22, 1, 0.36, 1] },
     },
   };
 
-  const MotionComponent = motion(as as any);
+  // Honour the OS "reduce motion" setting: render the content immediately.
+  if (shouldReduceMotion) {
+    return <div className={className}>{children}</div>;
+  }
 
   return (
     <MotionComponent
@@ -75,9 +77,6 @@ export default function Reveal({
     >
       {React.Children.map(children, (child) => {
         if (!React.isValidElement(child)) return child;
-
-        // If child is a RevealItem, leave as is (it attaches itemVariants)
-        // Otherwise wrap in motion.div with itemVariants
         return (
           <motion.div variants={itemVariants} className="w-full">
             {child}
@@ -98,7 +97,7 @@ export function RevealItem({
   variants?: Variants;
 }) {
   return (
-    <motion.div variants={variants || defaultItemVariants} className={className}>
+    <motion.div variants={variants} className={className}>
       {children}
     </motion.div>
   );
