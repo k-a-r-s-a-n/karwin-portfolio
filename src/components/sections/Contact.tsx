@@ -1,18 +1,19 @@
 "use client";
 
 import React, { useState } from "react";
-import { Check, Copy, Mail, ArrowUpRight } from "lucide-react";
+import { Check, Copy, Mail } from "lucide-react";
 import { GithubIcon, InstagramIcon } from "@/components/ui/Icons";
 import profileData from "@/data/profile.json";
-import SectionHeading from "@/components/ui/SectionHeading";
+import SplitReveal from "@/components/ui/AnimatedText";
 import Reveal from "@/components/ui/Reveal";
-import InteractiveButton from "@/components/ui/InteractiveButton";
+import SplashField from "@/components/ui/SplashField";
 
-const SOCIALS = [
-  { label: "GitHub", href: profileData.github, icon: GithubIcon },
-  { label: "Instagram", href: profileData.instagram, icon: InstagramIcon },
-];
-
+/**
+ * CH-05 — Contact, done as a full-bleed color-block finale (lusion-style):
+ * giant type over a playable field of liquid-confetti shapes. Stir the
+ * cursor through them and they scatter; stop, and they rain back down and
+ * settle like sand.
+ */
 export default function Contact() {
   const [copied, setCopied] = useState(false);
 
@@ -39,78 +40,132 @@ export default function Contact() {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  return (
-    <section id="contact" className="relative px-6 pb-16 pt-28 sm:px-10 lg:px-16">
-      <div className="mx-auto max-w-6xl">
-        <SectionHeading
-          index="05"
-          eyebrow="Contact"
-          lead="Let's build something"
-          accent="together."
-        />
+  const ink = "text-[#0c0c0d]";
+  const inkMuted = "text-[#0c0c0d]/65";
+  const inkFaint = "text-[#0c0c0d]/45";
 
-        <Reveal y={24} className="mt-14">
-          <p className="max-w-xl text-lg leading-relaxed text-muted">
-            Hackathons, internships, weird ideas at 2 AM — if it involves
-            shipping something real, my inbox is open.
+  return (
+    <section
+      id="contact"
+      className="relative min-h-[100svh] overflow-hidden bg-accent"
+      aria-label="Contact"
+    >
+      {/* Playable liquid-confetti field */}
+      <SplashField className="absolute inset-0 h-full w-full" />
+
+      {/* Content */}
+      <div className="relative z-10 mx-auto flex min-h-[100svh] max-w-6xl flex-col px-6 pb-16 pt-24 sm:px-10 sm:pt-28 lg:px-16">
+        <Reveal y={14}>
+          <p
+            className={`flex items-center gap-3 font-mono text-[11px] uppercase tracking-[0.25em] ${inkFaint}`}
+          >
+            <span className={ink}>05</span>
+            <span className="h-px w-8 bg-[#0c0c0d]/30" />
+            Contact — Chennai, IN
           </p>
         </Reveal>
 
-        <Reveal y={24} delay={0.08} className="mt-10">
-          {/* Email — the centerpiece */}
-          <div className="flex flex-wrap items-center gap-5">
-            <a
-              href={`mailto:${profileData.email}`}
-              className="link-sweep break-all font-serif text-2xl text-ink sm:text-4xl"
-            >
-              {profileData.email}
-            </a>
-            <button
-              onClick={copyEmail}
-              aria-label={copied ? "Email copied" : "Copy email address"}
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-line text-muted transition-all hover:border-accent hover:text-accent"
-            >
-              {copied ? <Check size={15} className="text-accent" /> : <Copy size={15} />}
-            </button>
-            <span aria-live="polite" className="font-mono text-[10px] uppercase tracking-[0.2em] text-faint">
-              {copied ? "Copied to clipboard" : ""}
-            </span>
-          </div>
-        </Reveal>
+        {/* Headline */}
+        <h2 className={`mt-10 font-serif leading-[0.95] ${ink}`}>
+          <SplitReveal
+            as="span"
+            mode="words"
+            stagger={0.08}
+            segments={[{ text: "Let's build", className: ink }]}
+            className="block text-[clamp(2.9rem,8.5vw,7rem)]"
+          />
+          <SplitReveal
+            as="span"
+            mode="words"
+            stagger={0.08}
+            delay={0.12}
+            segments={[{ text: "something", className: "italic text-[#f2f1ec]" }]}
+            className="block text-[clamp(2.9rem,8.5vw,7rem)]"
+          />
+          <SplitReveal
+            as="span"
+            mode="words"
+            stagger={0.08}
+            delay={0.24}
+            segments={[{ text: "together.", className: ink }]}
+            className="block text-[clamp(2.9rem,8.5vw,7rem)]"
+          />
+        </h2>
 
-        <Reveal y={20} delay={0.14} className="mt-10 flex flex-wrap items-center gap-4">
-          <InteractiveButton as="a" href={`mailto:${profileData.email}`} variant="primary">
-            <Mail size={15} />
-            <span>Send a message</span>
-          </InteractiveButton>
+        {/* Sub-copy + email */}
+        <div className="mt-auto pt-16">
+          <Reveal y={18}>
+            <p className={`max-w-md text-base leading-relaxed ${inkMuted}`}>
+              Hackathons, internships, weird ideas at 2 AM — if it ends with
+              something real shipped, my inbox is open.
+            </p>
+          </Reveal>
 
-          <div className="flex items-center gap-2">
-            {SOCIALS.map(({ label, href, icon: Icon }) => (
+          <Reveal y={18} delay={0.08} className="mt-6">
+            <div className="flex flex-wrap items-center gap-4">
               <a
-                key={label}
-                href={href}
+                href={`mailto:${profileData.email}`}
+                className={`link-sweep break-all font-serif text-xl sm:text-3xl ${ink}`}
+              >
+                {profileData.email}
+              </a>
+              <button
+                onClick={copyEmail}
+                aria-label={copied ? "Email copied" : "Copy email address"}
+                className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full border transition-colors ${
+                  copied
+                    ? "border-[#0c0c0d] bg-[#0c0c0d] text-accent"
+                    : "border-[#0c0c0d]/35 text-[#0c0c0d] hover:border-[#0c0c0d] hover:bg-[#0c0c0d] hover:text-accent"
+                }`}
+              >
+                {copied ? <Check size={15} /> : <Copy size={15} />}
+              </button>
+              <span
+                aria-live="polite"
+                className={`font-mono text-[10px] uppercase tracking-[0.2em] ${inkFaint}`}
+              >
+                {copied ? "Copied" : ""}
+              </span>
+            </div>
+          </Reveal>
+
+          {/* Socials + hint */}
+          <Reveal y={16} delay={0.14} className="mt-8 flex flex-wrap items-center justify-between gap-6">
+            <div className="flex items-center gap-2.5">
+              <a
+                href={profileData.github}
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label={label}
-                className="flex h-11 w-11 items-center justify-center rounded-full border border-line text-muted transition-all hover:border-accent hover:text-accent"
+                aria-label="GitHub"
+                className={`flex h-11 w-11 items-center justify-center rounded-full border transition-colors ${ink} border-[#0c0c0d]/35 hover:bg-[#0c0c0d] hover:text-accent`}
               >
-                <Icon size={16} />
+                <GithubIcon size={16} />
               </a>
-            ))}
-            <a
-              href={profileData.github}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group ml-2 inline-flex items-center gap-1.5 text-sm text-muted transition-colors hover:text-accent"
+              <a
+                href={profileData.instagram}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Instagram"
+                className={`flex h-11 w-11 items-center justify-center rounded-full border transition-colors ${ink} border-[#0c0c0d]/35 hover:bg-[#0c0c0d] hover:text-accent`}
+              >
+                <InstagramIcon size={16} />
+              </a>
+              <a
+                href={`mailto:${profileData.email}`}
+                className={`ml-2 inline-flex items-center gap-2 rounded-full bg-[#0c0c0d] px-5 py-2.5 text-sm font-medium text-[#f2f1ec] transition-transform hover:scale-[1.03] active:scale-[0.98]`}
+              >
+                <Mail size={14} />
+                Say hello
+              </a>
+            </div>
+
+            <p
+              className={`font-mono text-[10px] uppercase tracking-[0.22em] ${inkFaint}`}
             >
-              <span className="link-sweep">@{profileData.handle}</span>
-              <ArrowUpRight
-                size={13}
-                className="transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
-              />
-            </a>
-          </div>
-        </Reveal>
+              psst — move your cursor through the shapes
+            </p>
+          </Reveal>
+        </div>
       </div>
     </section>
   );

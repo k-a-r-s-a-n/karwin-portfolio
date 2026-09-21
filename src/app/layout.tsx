@@ -87,23 +87,18 @@ export const viewport: Viewport = {
 };
 
 /**
- * Runs before first paint. The site is dark-only; this script decides whether
- * the boot overlay should run at all:
- *  - repeat visit this session → `skip-boot` (no splash)
- *  - reduced motion → `skip-boot` (never animate)
- *  - otherwise → `is-booting` (page hidden until the curtain lifts)
+ * Runs before first paint. The boot curtain plays on every load — it is the
+ * signature moment — except for reduced-motion visitors, who get `skip-boot`
+ * (page shown instantly, no animation). Everyone else gets `is-booting` so
+ * the page stays hidden until the curtain lifts.
  */
 const bootstrapScript = `
 (function () {
-  try {
-    var booted = sessionStorage.getItem('karwin-booted');
-    var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (booted || reduced) {
-      document.documentElement.classList.add('skip-boot');
-    } else {
-      document.documentElement.classList.add('is-booting');
-    }
-  } catch (e) {}
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    document.documentElement.classList.add('skip-boot');
+  } else {
+    document.documentElement.classList.add('is-booting');
+  }
 })();
 `;
 

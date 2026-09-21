@@ -29,7 +29,7 @@ npm run lint    # eslint
 ## Design notes
 
 - **Type system** — serif display with italic accent phrases; body copy reveals word-by-word on scroll (`FadeWords`); headlines reveal char-by-char from mask lines (`SplitReveal`).
-- **Splash** — runs once per browser session, never for reduced-motion visitors; an inline pre-paint script decides (`skip-boot` / `is-booting`), so there's no flash and no leaked scroll lock.
+- **Splash** — plays on every load (skipped only for reduced-motion visitors via a pre-paint inline script), runs to 100%, waits for real page load, then lifts as the hero choreography begins.
 - **3D** — distorted metallic sphere + orbit rings + particles; rotates with scroll, tilts with the pointer; renders one static frame under reduced motion.
 - **Accessibility** — skip link, focus rings, focus-trapped modal, `aria-pressed`/`aria-live` where relevant, native cursor never hidden, all motion gated behind `prefers-reduced-motion`.
 

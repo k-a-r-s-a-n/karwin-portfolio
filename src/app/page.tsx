@@ -4,7 +4,6 @@ import Projects from "@/components/sections/Projects";
 import TechStack from "@/components/sections/TechStack";
 import Stats from "@/components/sections/Stats";
 import Contact from "@/components/sections/Contact";
-import BeadCurtain from "@/components/ui/BeadCurtain";
 
 export default function Home() {
   return (
@@ -15,7 +14,6 @@ export default function Home() {
       <TechStack />
       <Stats />
       <Contact />
-      <BeadCurtain />
     </div>
   );
 }

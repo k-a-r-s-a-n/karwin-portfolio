@@ -3,11 +3,10 @@
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-const BOOT_KEY = "karwin-booted";
 const NAME = "KARWIN".split("");
 
 // How long the sequence runs at minimum — long enough to actually be seen.
-const MIN_DURATION_MS = 3000;
+const MIN_DURATION_MS = 2600;
 // Held at 100% before the curtain lifts, so "Ready" registers.
 const SETTLE_MS = 420;
 // Never hold the page hostage for a slow connection beyond this.
@@ -24,9 +23,9 @@ const easeInOutCubic = (t: number) =>
   t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 
 /**
- * Boot sequence — runs once per browser session, never for reduced-motion
- * visitors. The inline script in layout.tsx decides before first paint
- * whether this overlay runs at all (`skip-boot`) and hides the page
+ * Boot sequence — plays on every load (the signature moment), never for
+ * reduced-motion visitors. The inline script in layout.tsx decides before
+ * first paint (`skip-boot` = show the page instantly) and hides the page
  * (`is-booting`) until the curtain lifts.
  *
  * The counter runs to 100%, then waits for the document to actually finish
@@ -65,11 +64,6 @@ export default function Preloader() {
       setProgress(100);
       // Let "Ready / 100%" register before the lift.
       settleTimer = window.setTimeout(() => {
-        try {
-          sessionStorage.setItem(BOOT_KEY, "1");
-        } catch {
-          // Non-fatal: worst case the boot replays next reload.
-        }
         document.documentElement.classList.remove("is-booting");
         setIsComplete(true);
       }, SETTLE_MS);

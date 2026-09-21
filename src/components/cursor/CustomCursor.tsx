@@ -52,10 +52,10 @@ export default function CustomCursor() {
 
     // ── State ──
     const TRAIL_MAX = 26;
-    const TRAIL_LIFE_S = 0.5;
+    const TRAIL_LIFE_S = 0.58;
     const WAVE_SPEED = 7; // wave phase speed (rad/s)
     const WAVE_LENGTH = 0.55; // spatial frequency along the trail
-    const WAVE_MAX_AMP = 7; // px, at the tail
+    const WAVE_MAX_AMP = 5.5; // px, at the tail
 
     interface TrailPoint {
       x: number;
@@ -128,9 +128,9 @@ export default function CustomCursor() {
     document.addEventListener("pointerenter", handleEnter, { passive: true });
 
     const frame = (now: number) => {
-      // The head eases toward the pointer — organic lag, never snappy.
-      headX += (mouseX - headX) * 0.42;
-      headY += (mouseY - headY) * 0.42;
+      // The head eases toward the pointer — heavy, organic lag, never snappy.
+      headX += (mouseX - headX) * 0.26;
+      headY += (mouseY - headY) * 0.26;
       pulse = Math.max(0, pulse - 0.045);
 
       points.unshift({ x: headX, y: headY, t: now });

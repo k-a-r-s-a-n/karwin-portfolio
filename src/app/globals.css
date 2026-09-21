@@ -106,6 +106,13 @@ html.lenis body {
   transform: translateY(0);
 }
 
+/* ─── Focus on the lime contact block ───
+   The global accent outline disappears against the lime background. */
+#contact a:focus-visible,
+#contact button:focus-visible {
+  outline-color: #0a0a0b;
+}
+
 /* ─── Boot overlay state ───
    While the preloader runs, lock scrolling and keep content out of the
    accessibility tree so focus cannot land behind the overlay. */
@@ -131,15 +138,13 @@ button:focus-visible,
    `cursor-active` is set by JS only on fine-pointer devices without reduced
    motion. Text fields keep the I-beam. */
 html.cursor-active body,
-html.cursor-active a,
-html.cursor-active button,
-html.cursor-active label {
-  cursor: none;
+html.cursor-active body *:not(input):not(textarea):not(select) {
+  cursor: none !important;
 }
 html.cursor-active input,
 html.cursor-active textarea,
 html.cursor-active select {
-  cursor: text;
+  cursor: text !important;
 }
 
 .cursor-dot,
@@ -277,9 +282,7 @@ html.cursor-active select {
     scroll-behavior: auto !important;
   }
   html.cursor-active body,
-  html.cursor-active a,
-  html.cursor-active button,
-  html.cursor-active label {
-    cursor: auto;
+  html.cursor-active body * {
+    cursor: auto !important;
   }
 }
