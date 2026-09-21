@@ -147,29 +147,6 @@ html.cursor-active select {
   cursor: text !important;
 }
 
-.cursor-dot,
-.cursor-ring {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 9999;
-  pointer-events: none;
-  will-change: transform;
-}
-.cursor-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 9999px;
-  background-color: var(--accent);
-}
-.cursor-ring {
-  width: 32px;
-  height: 32px;
-  border-radius: 9999px;
-  border: 1px solid rgba(242, 241, 236, 0.35);
-  transition: width 180ms ease, height 180ms ease, border-color 180ms ease,
-    background-color 180ms ease;
-}
 .cursor-canvas {
   position: fixed;
   inset: 0;

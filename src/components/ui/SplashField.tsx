@@ -60,10 +60,12 @@ export default function SplashField({
     const local: SplashInput = { ...EMPTY_INPUT };
     const clicks: { x: number; y: number }[] = [];
 
+    // Batched transform: one setMatrix per shape instead of save/restore —
+    // meaningful at ~2000 shapes.
     const drawShape = (p: (typeof world.particles)[number]) => {
-      ctx.save();
-      ctx.translate(p.x, p.y);
-      ctx.rotate(p.angle);
+      const cos = Math.cos(p.angle);
+      const sin = Math.sin(p.angle);
+      ctx.setTransform(dpr * cos, dpr * sin, -dpr * sin, dpr * cos, dpr * p.x, dpr * p.y);
       const ink = dark
         ? p.tone
           ? "rgba(242, 241, 236, 0.92)"
@@ -131,13 +133,14 @@ export default function SplashField({
           break;
         }
       }
-      ctx.restore();
     };
 
     const render = () => {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, world.width, world.height);
-      for (const p of world.particles) drawShape(p);
+      for (const p of world.particles) {
+        if (p.y > -16) drawShape(p); // skip shapes still above the canvas
+      }
     };
 
     const build = () => {

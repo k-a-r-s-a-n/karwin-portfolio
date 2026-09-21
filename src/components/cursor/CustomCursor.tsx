@@ -30,6 +30,11 @@ export default function CustomCursor() {
     if (!finePointer || reducedMotion) return;
 
     root.classList.add("cursor-active");
+    // Belt and suspenders: inline styles override every author rule and UA
+    // default, and `cursor` inherits — so the native pointer cannot leak
+    // through on any element, in any browser.
+    root.style.cursor = "none";
+    document.body.style.cursor = "none";
 
     const canvas = document.createElement("canvas");
     canvas.className = "cursor-canvas";
@@ -111,6 +116,12 @@ export default function CustomCursor() {
       pulse = 1;
       mouseX = event.clientX;
       mouseY = event.clientY;
+      // The visible cursor lands exactly on the click point — the ribbon
+      // head snaps, and the stale trail is dropped so no streak is drawn
+      // across the gap.
+      headX = mouseX;
+      headY = mouseY;
+      points.length = 0;
       pointerState.down = true;
       wake();
     };
@@ -139,10 +150,21 @@ export default function CustomCursor() {
 
     const frame = (now: number) => {
       // The head eases toward the pointer — heavy, organic lag, never snappy.
+      // Exception: while the button is held (or after a >150px jump) the head
+      // snaps to the pointer, so the cursor you SEE is always the cursor that
+      // clicks.
       const prevX = headX;
       const prevY = headY;
-      headX += (mouseX - headX) * 0.26;
-      headY += (mouseY - headY) * 0.26;
+      const gap = Math.hypot(mouseX - headX, mouseY - headY);
+      const ease = pointerState.down || gap > 150 ? 1 : 0.26;
+      if (ease === 1) {
+        if (gap > 150) points.length = 0; // teleport: drop the stale trail
+        headX = mouseX;
+        headY = mouseY;
+      } else {
+        headX += (mouseX - headX) * ease;
+        headY += (mouseY - headY) * ease;
+      }
       pulse = Math.max(0, pulse - 0.03);
 
       // Publish the RENDERED ribbon position + velocity for physics scenes,
@@ -276,6 +298,8 @@ export default function CustomCursor() {
       document.removeEventListener("pointerenter", handleEnter);
       window.removeEventListener("resize", resize);
       canvas.remove();
+      root.style.cursor = "";
+      document.body.style.cursor = "";
       root.classList.remove("cursor-active", "cursor-interactive");
     };
   }, []);
