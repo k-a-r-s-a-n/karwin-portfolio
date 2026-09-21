@@ -23,7 +23,7 @@ export default function Footer() {
         <div>
           <p className="font-serif text-lg text-ink">{profileData.name}</p>
           <p className="mt-0.5 font-mono text-[10px] uppercase tracking-[0.2em] text-faint">
-            © {new Date().getFullYear()} · Built with Next.js, Three.js &amp; Framer Motion
+            © {new Date().getFullYear()} · build v2.7 · Next.js, Three.js &amp; Framer Motion
           </p>
         </div>
 

@@ -36,6 +36,8 @@ export default function CustomCursor() {
     const ring = document.createElement("div");
     ring.className = "cursor-aura";
     ring.setAttribute("aria-hidden", "true");
+    // Hidden until the first pointer move — never a stray ring in a corner.
+    ring.style.opacity = "0";
     root.appendChild(ring);
 
     // ── Waving silk trail (canvas) ──
@@ -98,6 +100,7 @@ export default function CustomCursor() {
       lastY = event.clientY;
 
       // Ring is glued to the real pointer — no easing, ever.
+      ring.style.opacity = "1";
       ring.style.transform = `translate3d(${lastX}px, ${lastY}px, 0) translate(-50%, -50%)`;
 
       points.push({ x: lastX, y: lastY, t: performance.now() });
