@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { pointerState } from "@/lib/pointer";
 
 /**
  * Fluid ink cursor — a glowing ribbon that trails the pointer with a
@@ -72,8 +73,11 @@ export default function CustomCursor() {
     let interactive = false;
     let pulse = 0; // click pulse 0..1
     let lastMoveAt = 0;
+    let headVX = 0; // ribbon head velocity, px/s (published for physics)
+    let headVY = 0;
     let rafId = 0;
     let running = false;
+    let lastTime = 0;
 
     const INTERACTIVE_SELECTOR =
       "a, button, [role='button'], input, textarea, select, label, summary";
@@ -107,7 +111,12 @@ export default function CustomCursor() {
       pulse = 1;
       mouseX = event.clientX;
       mouseY = event.clientY;
+      pointerState.down = true;
       wake();
+    };
+
+    const handleUp = () => {
+      pointerState.down = false;
     };
 
     const handleLeave = () => {
@@ -124,14 +133,33 @@ export default function CustomCursor() {
     document.addEventListener("pointerover", handleOver, { passive: true });
     document.addEventListener("pointerout", handleOut, { passive: true });
     document.addEventListener("pointerdown", handleDown, { passive: true });
+    window.addEventListener("pointerup", handleUp, { passive: true });
     document.addEventListener("pointerleave", handleLeave, { passive: true });
     document.addEventListener("pointerenter", handleEnter, { passive: true });
 
     const frame = (now: number) => {
       // The head eases toward the pointer — heavy, organic lag, never snappy.
+      const prevX = headX;
+      const prevY = headY;
       headX += (mouseX - headX) * 0.26;
       headY += (mouseY - headY) * 0.26;
-      pulse = Math.max(0, pulse - 0.045);
+      pulse = Math.max(0, pulse - 0.03);
+
+      // Publish the RENDERED ribbon position + velocity for physics scenes,
+      // so the world reacts exactly where the visible cursor is.
+      if (lastTime !== 0) {
+        const dt = Math.max((now - lastTime) / 1000, 1 / 240);
+        const instVX = (headX - prevX) / dt;
+        const instVY = (headY - prevY) / dt;
+        headVX += (instVX - headVX) * 0.35;
+        headVY += (instVY - headVY) * 0.35;
+        pointerState.x = headX;
+        pointerState.y = headY;
+        pointerState.vx = headVX;
+        pointerState.vy = headVY;
+        pointerState.active = true;
+      }
+      lastTime = now;
 
       points.unshift({ x: headX, y: headY, t: now });
       if (points.length > TRAIL_MAX) points.pop();
@@ -203,12 +231,13 @@ export default function CustomCursor() {
         ctx.arc(headX, headY, coreRadius, 0, Math.PI * 2);
         ctx.fill();
 
-        // Click pulse ring
+        // Click pulse ring — expands and fades over ~half a second.
         if (pulse > 0.01) {
-          ctx.strokeStyle = `rgba(201, 241, 88, ${pulse * 0.5 * alpha})`;
-          ctx.lineWidth = 1.2;
+          const t = 1 - pulse;
+          ctx.strokeStyle = `rgba(201, 241, 88, ${(1 - t) * 0.85 * alpha})`;
+          ctx.lineWidth = 1.6;
           ctx.beginPath();
-          ctx.arc(headX, headY, (interactive ? 30 : 20) * (1.6 - pulse), 0, Math.PI * 2);
+          ctx.arc(headX, headY, 10 + t * 52, 0, Math.PI * 2);
           ctx.stroke();
         }
       } else if (visible) {
@@ -236,6 +265,13 @@ export default function CustomCursor() {
       document.removeEventListener("pointerover", handleOver);
       document.removeEventListener("pointerout", handleOut);
       document.removeEventListener("pointerdown", handleDown);
+      window.removeEventListener("pointerup", handleUp);
+      pointerState.active = false;
+      pointerState.down = false;
+      pointerState.x = -9999;
+      pointerState.y = -9999;
+      pointerState.vx = 0;
+      pointerState.vy = 0;
       document.removeEventListener("pointerleave", handleLeave);
       document.removeEventListener("pointerenter", handleEnter);
       window.removeEventListener("resize", resize);
