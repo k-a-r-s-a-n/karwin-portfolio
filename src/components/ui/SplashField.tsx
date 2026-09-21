@@ -13,7 +13,6 @@ import {
   SHAPE_RING,
   type SplashInput,
 } from "@/lib/splash-physics";
-import { pointerState } from "@/lib/pointer";
 
 /**
  * SplashField — a full-width field of liquid-confetti shapes with real,
@@ -21,10 +20,9 @@ import { pointerState } from "@/lib/pointer";
  * pure and unit-checked: settles calm, never overlaps, sweeps carve, clicks
  * burst, and everything rains back down).
  *
- * Input priority:
- *  1. The ink-ribbon cursor's published state — the field reacts exactly
- *     where the glowing ribbon appears to be.
- *  2. Local pointer events (touch devices, or when the ribbon is inactive).
+ * Input: raw pointer events (window-level), converted to canvas coordinates
+ * every frame — one source of truth, works for mouse, pen and touch. Pointer
+ * velocity is computed from consecutive move events. Clicks fire a burst.
  *
  * Rendering: one 2D canvas; the simulation runs on a fixed 1/60s accumulator
  * and sleeps when the section scrolls off-screen. Reduced-motion visitors get
@@ -161,77 +159,62 @@ export default function SplashField({
       // Drain the simulation in fixed 1/60s steps (deterministic + stable).
       let stepped = false;
       while (acc >= 1 / 60) {
-        // Prefer the ribbon cursor's published position; fall back to local
-        // events (touch). Convert to canvas coordinates.
-        let input = EMPTY_INPUT;
-        if (pointerState.active && pointerState.x > -9000) {
-          const rect = canvas.getBoundingClientRect();
-          input = {
-            x: pointerState.x - rect.left,
-            y: pointerState.y - rect.top,
-            vx: pointerState.vx,
-            vy: pointerState.vy,
-            active: true,
-          };
-          // A rising click edge becomes a burst at the ribbon's position.
-          if (pointerState.down && !prevSharedDown) {
-            clicks.push({ x: input.x, y: input.y });
-          }
-          prevSharedDown = pointerState.down;
-        } else {
-          input = local;
-        }
-
-        tick(world, input, clicks);
+        tick(world, local, clicks);
         clicks.length = 0;
         acc -= 1 / 60;
         stepped = true;
       }
-      prevSharedDown = pointerState.down;
+      // Velocity decays so a stopped pointer stops pushing immediately.
+      local.vx *= 0.8;
+      local.vy *= 0.8;
 
       if (stepped) render();
       rafId = requestAnimationFrame(frame);
     };
 
-    let prevSharedDown = false;
-
-    // ── Local fallback input (touch, or when the ribbon is off) ──
-    let lastLocalX = -9999;
-    let lastLocalY = -9999;
-    let lastLocalT = 0;
+    // ── Raw pointer input — the single source of truth ──
+    let lastX = -9999;
+    let lastY = -9999;
+    let lastT = 0;
 
     const toCanvas = (clientX: number, clientY: number) => {
       const rect = canvas.getBoundingClientRect();
       return { x: clientX - rect.left, y: clientY - rect.top };
     };
 
-    const handleLocalMove = (event: PointerEvent) => {
-      if (pointerState.active) return; // ribbon owns the pointer
+    const handlePointerMove = (event: PointerEvent) => {
       const { x, y } = toCanvas(event.clientX, event.clientY);
       const now = performance.now();
-      const dt = lastLocalT ? Math.max((now - lastLocalT) / 1000, 1 / 240) : 1 / 60;
-      local.vx = Math.max(-2600, Math.min(2600, (x - lastLocalX) / dt));
-      local.vy = Math.max(-2600, Math.min(2600, (y - lastLocalY) / dt));
-      lastLocalX = x;
-      lastLocalY = y;
-      lastLocalT = now;
+      const dt = lastT ? Math.max((now - lastT) / 1000, 1 / 240) : 1 / 60;
+      local.vx = Math.max(-3000, Math.min(3000, (x - lastX) / dt));
+      local.vy = Math.max(-3000, Math.min(3000, (y - lastY) / dt));
+      lastX = x;
+      lastY = y;
+      lastT = now;
       local.x = x;
       local.y = y;
       local.active = true;
     };
 
-    const handleLocalDown = (event: PointerEvent) => {
-      if (pointerState.active) return;
+    const handlePointerDown = (event: PointerEvent) => {
       const { x, y } = toCanvas(event.clientX, event.clientY);
+      // A click is also an instantaneous position update, so bursts land
+      // exactly where the pointer is — even for the very first interaction.
+      lastX = x;
+      lastY = y;
+      lastT = performance.now();
+      local.x = x;
+      local.y = y;
+      local.active = true;
       clicks.push({ x, y });
     };
 
-    const handleLocalGone = () => {
+    const handlePointerGone = () => {
       local.active = false;
       local.vx = 0;
       local.vy = 0;
-      lastLocalX = -9999;
-      lastLocalY = -9999;
+      lastX = -9999;
+      lastY = -9999;
     };
 
     let resizeTimer = 0;
@@ -283,9 +266,13 @@ export default function SplashField({
     );
     observer.observe(canvas);
 
-    window.addEventListener("pointermove", handleLocalMove, { passive: true });
-    window.addEventListener("pointerdown", handleLocalDown, { passive: true });
-    document.addEventListener("pointerleave", handleLocalGone, {
+    window.addEventListener("pointermove", handlePointerMove, {
+      passive: true,
+    });
+    window.addEventListener("pointerdown", handlePointerDown, {
+      passive: true,
+    });
+    document.addEventListener("pointerleave", handlePointerGone, {
       passive: true,
     });
     window.addEventListener("resize", handleResize);
@@ -294,9 +281,9 @@ export default function SplashField({
       stop();
       observer.disconnect();
       window.clearTimeout(resizeTimer);
-      window.removeEventListener("pointermove", handleLocalMove);
-      window.removeEventListener("pointerdown", handleLocalDown);
-      document.removeEventListener("pointerleave", handleLocalGone);
+      window.removeEventListener("pointermove", handlePointerMove);
+      window.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("pointerleave", handlePointerGone);
       window.removeEventListener("resize", handleResize);
     };
   }, [dark]);

@@ -115,10 +115,7 @@ html.lenis body {
 
 /* ─── Boot overlay state ───
    While the preloader runs, lock scrolling and keep content out of the
-   accessibility tree so focus cannot land behind the overlay.
-   Failsafe: the reveal animation force-restores visibility after 4.5s even
-   if the Preloader's JS never ran (failed chunk, stale deploy) — CSS
-   animations execute without any bundle. */
+   accessibility tree so focus cannot land behind the overlay. */
 html.is-booting {
   overflow: hidden;
 }
@@ -126,6 +123,9 @@ html.is-booting main,
 html.is-booting header,
 html.is-booting footer {
   visibility: hidden;
+  /* Failsafe: force-restores visibility after 4.5s even if the Preloader's
+     JS never ran (failed chunk, stale deploy) — CSS animations execute
+     without any bundle. */
   animation: boot-reveal 0s 4.5s forwards;
 }
 
@@ -144,17 +144,35 @@ button:focus-visible,
   border-radius: 2px;
 }
 
-/* ─── Custom Cursor ───
-   `cursor-active` is set by JS only on fine-pointer devices without reduced
-   motion. Text fields keep the I-beam. */
-html.cursor-active body,
-html.cursor-active body *:not(input):not(textarea):not(select) {
-  cursor: none !important;
+/* ─── Cursor Aura ───
+   Decorative companion to the NATIVE cursor, which stays fully visible.
+   The ring is glued to the pointer (instant follow) — it can never become
+   a second cursor. The waving silk trail lives on a click-transparent
+   canvas (.cursor-canvas). */
+.cursor-aura {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9998;
+  width: 34px;
+  height: 34px;
+  border-radius: 9999px;
+  border: 1px solid rgba(242, 241, 236, 0.4);
+  pointer-events: none;
+  will-change: transform;
+  transition: width 160ms ease, height 160ms ease, border-color 160ms ease,
+    background-color 160ms ease;
 }
-html.cursor-active input,
-html.cursor-active textarea,
-html.cursor-active select {
-  cursor: text !important;
+
+.cursor-aura-active {
+  width: 52px;
+  height: 52px;
+  border-color: rgba(201, 241, 88, 0.85);
+  background-color: rgba(201, 241, 88, 0.07);
+}
+
+.cursor-aura-down {
+  border-color: var(--accent);
 }
 
 .cursor-canvas {
