@@ -33,6 +33,13 @@ npm run lint    # eslint
 - **3D** — distorted metallic sphere + orbit rings + particles; rotates with scroll, tilts with the pointer; renders one static frame under reduced motion.
 - **Accessibility** — skip link, focus rings, focus-trapped modal, `aria-pressed`/`aria-live` where relevant, native cursor never hidden, all motion gated behind `prefers-reduced-motion`.
 
+## Verification tooling
+
+`scripts/` holds node-run audits (not part of the app bundle):
+
+- `physics-check.ts` — simulates the splash-field solver headlessly and asserts settling, non-overlap, sweep response, and click bursts (`npx tsc scripts/physics-check.ts --outDir /tmp/phys --module commonjs --target es2020 --esModuleInterop --skipLibCheck --moduleResolution node && node /tmp/phys/scripts/physics-check.js`)
+- `ui-audit.cjs`, `failsafe-audit.cjs`, `visual-probe2.cjs` — real-browser interaction audits (need `npm i -D puppeteer-core @sparticuz/chromium` and a running dev/prod server)
+
 ## Deploy
 
 Any Next.js-capable host. Set `SITE_URL` in `src/app/layout.tsx` to the deployed URL so social tags resolve.

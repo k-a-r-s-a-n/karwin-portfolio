@@ -4,6 +4,7 @@ import React from "react";
 import { ArrowUp } from "lucide-react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import profileData from "@/data/profile.json";
+import { getLenis } from "@/lib/lenis";
 
 export default function Footer() {
   const { scrollYProgress } = useScroll();
@@ -31,7 +32,11 @@ export default function Footer() {
         </p>
 
         <button
-          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          onClick={() => {
+            const lenis = getLenis();
+            if (lenis) lenis.scrollTo(0);
+            else window.scrollTo({ top: 0, behavior: "smooth" });
+          }}
           aria-label="Back to top"
           className="flex h-11 w-11 items-center justify-center rounded-full border border-line text-muted transition-all hover:border-accent hover:text-accent"
         >

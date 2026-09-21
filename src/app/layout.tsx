@@ -99,6 +99,13 @@ const bootstrapScript = `
   } else {
     document.documentElement.classList.add('is-booting');
   }
+  // Failsafe: the boot state MUST never outlive this timer, even if a JS
+  // chunk fails to load (offline, stale deploy, flaky network). Without
+  // this, a failed bundle leaves the header unclickable (visibility:hidden)
+  // forever. Inline script = independent of every downloaded asset.
+  setTimeout(function () {
+    document.documentElement.classList.remove('is-booting');
+  }, 5000);
 })();
 `;
 

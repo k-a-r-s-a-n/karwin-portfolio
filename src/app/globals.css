@@ -115,7 +115,10 @@ html.lenis body {
 
 /* ─── Boot overlay state ───
    While the preloader runs, lock scrolling and keep content out of the
-   accessibility tree so focus cannot land behind the overlay. */
+   accessibility tree so focus cannot land behind the overlay.
+   Failsafe: the reveal animation force-restores visibility after 4.5s even
+   if the Preloader's JS never ran (failed chunk, stale deploy) — CSS
+   animations execute without any bundle. */
 html.is-booting {
   overflow: hidden;
 }
@@ -123,6 +126,13 @@ html.is-booting main,
 html.is-booting header,
 html.is-booting footer {
   visibility: hidden;
+  animation: boot-reveal 0s 4.5s forwards;
+}
+
+@keyframes boot-reveal {
+  to {
+    visibility: visible;
+  }
 }
 
 /* ─── Keyboard Focus ─── */

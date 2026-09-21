@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { useBootedReveal } from "@/components/ui/AnimatedText";
+import { getLenis } from "@/lib/lenis";
 
 const LINKS = [
   { label: "About", href: "#about", id: "about" },
@@ -55,7 +56,16 @@ export default function Navbar() {
   const goTo = (e: React.MouseEvent<HTMLElement>, href: string) => {
     e.preventDefault();
     setMobileMenuOpen(false);
-    document.getElementById(href.slice(1))?.scrollIntoView({ behavior: "smooth" });
+    const target = document.getElementById(href.slice(1));
+    if (!target) return;
+    // Lenis owns scrolling — its scrollTo is deterministic; native smooth
+    // scrollIntoView can fight the rAF loop and appear to do nothing.
+    const lenis = getLenis();
+    if (lenis) {
+      lenis.scrollTo(target as HTMLElement, { offset: -72 });
+    } else {
+      target.scrollIntoView({ behavior: "smooth" });
+    }
   };
 
   return (
