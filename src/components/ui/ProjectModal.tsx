@@ -5,7 +5,6 @@ import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { X, ExternalLink } from "lucide-react";
 import { GithubIcon } from "@/components/ui/Icons";
 import Image from "next/image";
-import GlassSurface from "@/components/ui/GlassSurface";
 import InteractiveButton from "@/components/ui/InteractiveButton";
 import { getLenis } from "@/lib/lenis";
 
@@ -45,7 +44,6 @@ export default function ProjectModal({ project, onClose }: ProjectModalProps) {
     if (!project) return;
 
     previousFocusRef.current = document.activeElement as HTMLElement | null;
-
     const dialog = dialogRef.current;
 
     const getFocusable = () =>
@@ -55,7 +53,6 @@ export default function ProjectModal({ project, onClose }: ProjectModalProps) {
           ).filter((el) => el.offsetParent !== null)
         : [];
 
-    // Move focus into the dialog on open.
     getFocusable()[0]?.focus();
 
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -64,8 +61,6 @@ export default function ProjectModal({ project, onClose }: ProjectModalProps) {
         onClose();
         return;
       }
-
-      // Focus trap: cycle Tab within the dialog while it is open.
       if (event.key === "Tab" && dialog) {
         const focusable = getFocusable();
         if (focusable.length === 0) return;
@@ -85,8 +80,7 @@ export default function ProjectModal({ project, onClose }: ProjectModalProps) {
 
     document.addEventListener("keydown", handleKeyDown);
 
-    // Freeze background scrolling — Lenis must be stopped explicitly,
-    // `overflow: hidden` alone doesn't hold it.
+    // Freeze background scrolling — Lenis must be stopped explicitly.
     const lenis = getLenis();
     lenis?.stop();
     document.body.style.overflow = "hidden";
@@ -95,165 +89,131 @@ export default function ProjectModal({ project, onClose }: ProjectModalProps) {
       document.removeEventListener("keydown", handleKeyDown);
       document.body.style.overflow = "";
       lenis?.start();
-      // Hand focus back to the trigger that opened the dialog.
       previousFocusRef.current?.focus?.();
     };
   }, [project, onClose]);
 
-  // A "LIVE" link that just points back at the repo is a lie of chrome —
-  // only offer it when it actually goes somewhere different.
+  // Only offer "live" when it goes somewhere different from the repo.
   const hasDistinctLiveUrl =
     !!project?.liveUrl && project.liveUrl !== project.github;
 
   return (
     <AnimatePresence>
       {project && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 md:p-10">
-          {/* Dark scrim backdrop */}
+        <div className="fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-6 md:p-10">
+          {/* Scrim */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
             aria-hidden="true"
-            className="fixed inset-0 cursor-pointer"
-            style={{
-              backgroundColor: "rgba(9, 9, 11, 0.65)",
-              backdropFilter: "blur(6px)",
-              WebkitBackdropFilter: "blur(6px)",
-            }}
+            className="fixed inset-0 bg-bg/80 backdrop-blur-md"
           />
 
-          {/* Modal Container: Technical Inspection Dossier using GlassSurface */}
+          {/* Sheet */}
           <motion.div
             ref={dialogRef}
             role="dialog"
             aria-modal="true"
             aria-labelledby={`project-modal-title-${project.id}`}
-            initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.98, y: 12 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.98, y: 12 }}
-            transition={shouldReduceMotion ? { duration: 0.15 } : { type: "spring", damping: 28, stiffness: 350 }}
-            className="relative w-full max-w-4xl max-h-[88vh] overflow-y-auto z-10 text-ink has-rivets shadow-2xl"
+            initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 60, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 40, scale: 0.98 }}
+            transition={
+              shouldReduceMotion
+                ? { duration: 0.15 }
+                : { type: "spring", damping: 30, stiffness: 320 }
+            }
+            className="relative z-10 max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-t-3xl border border-line bg-surface shadow-2xl sm:rounded-3xl"
           >
-            <GlassSurface className="p-6 sm:p-10 border border-seam">
-              {/* Top Sheet Header */}
-              <div className="flex items-center justify-between border-b border-seam pb-4 mb-6 font-mono text-xs">
-                <div className="flex items-center gap-3">
-                  <span className="badge-orange">{project.category}</span>
-                  <span className="font-bold text-ink">
-                    INSPECTION DOSSIER {"//"} {project.id.toUpperCase()}
-                  </span>
-                </div>
+            {/* Cover */}
+            <div className="relative h-56 w-full overflow-hidden sm:h-72">
+              <Image
+                src={project.coverImage}
+                alt={`${project.title} — project cover`}
+                fill
+                sizes="(max-width: 768px) 100vw, 768px"
+                className="object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-surface via-surface/20 to-transparent" />
+              <button
+                onClick={onClose}
+                className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full border border-line bg-bg/70 text-ink backdrop-blur transition-colors hover:border-accent hover:text-accent"
+                aria-label="Close dialog"
+              >
+                <X size={16} />
+              </button>
+              <p className="absolute bottom-4 left-6 font-mono text-[10px] uppercase tracking-[0.25em] text-muted">
+                {project.category} · {project.year} · {project.status}
+              </p>
+            </div>
 
-                {/* Close Button */}
-                <button
-                  onClick={onClose}
-                  className="p-1.5 border border-seam bg-surface hover:bg-ink hover:text-surface transition-colors cursor-pointer"
-                  aria-label="Close modal"
-                >
-                  <X size={18} />
-                </button>
-              </div>
+            <div className="px-6 pb-8 sm:px-10 sm:pb-10">
+              <h2
+                id={`project-modal-title-${project.id}`}
+                className="font-serif text-3xl text-ink sm:text-4xl"
+              >
+                {project.title}
+              </h2>
+              <p className="mt-2 font-serif text-lg italic text-accent">
+                {project.subtitle}
+              </p>
 
-              {/* Media Box */}
-              <div className="relative w-full h-60 sm:h-80 border border-seam bg-panel-recess p-2 mb-6 overflow-hidden">
-                <div className="relative w-full h-full overflow-hidden">
-                  <Image
-                    src={project.coverImage}
-                    alt={`${project.title} — project cover`}
-                    fill
-                    sizes="(max-width: 768px) 100vw, 80vw"
-                    className="object-cover"
-                  />
-                </div>
-                <div className="absolute bottom-4 left-4 bg-ink text-surface px-3 py-1 font-mono text-[10px] font-bold uppercase">
-                  CASSETTE SPEC: {project.year} &bull; {project.status}
-                </div>
-              </div>
-
-              {/* Title & Subtitle */}
-              <div className="mb-6">
-                <h2
-                  id={`project-modal-title-${project.id}`}
-                  className="text-3xl sm:text-4xl font-bold tracking-tight text-ink uppercase mb-2"
-                >
-                  {project.title}
-                </h2>
-                <p className="font-mono text-sm text-accent font-semibold">
-                  {"//"} {project.subtitle}
-                </p>
-              </div>
-
-              {/* Description */}
-              <p className="text-sm sm:text-base text-ink/85 leading-relaxed font-sans mb-8">
+              <p className="mt-6 leading-relaxed text-ink/85">
                 {project.longDescription || project.description}
               </p>
 
-              {/* Measured Metrics Spec Table */}
-              {Object.keys(project.metrics).length > 0 && (
-                <div className="mb-8 border border-seam bg-panel-recess/60">
-                  <div className="font-mono text-xs uppercase px-4 py-2 border-b border-seam text-ink font-bold bg-panel-recess">
-                    INSTRUMENTATION METRICS &amp; OPERATIONAL BENCHMARKS
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-seam">
-                    {Object.entries(project.metrics).map(([key, val]) => (
-                      <div key={key} className="p-4">
-                        <div className="font-mono text-[10px] text-ink-muted uppercase mb-1">
-                          {key.replace(/([A-Z])/g, " $1")}
-                        </div>
-                        <div className="font-mono text-base font-bold text-ink">
-                          {val}
-                        </div>
-                      </div>
+              {/* Highlights */}
+              {project.highlights.length > 0 && (
+                <div className="mt-8">
+                  <p className="mb-3 font-mono text-[10px] uppercase tracking-[0.25em] text-faint">
+                    Technical notes
+                  </p>
+                  <ul className="space-y-2.5">
+                    {project.highlights.map((highlight, idx) => (
+                      <li
+                        key={idx}
+                        className="flex items-start gap-3 text-sm text-muted"
+                      >
+                        <span className="mt-[7px] h-1 w-1 shrink-0 rounded-full bg-accent" />
+                        {highlight}
+                      </li>
                     ))}
-                  </div>
+                  </ul>
                 </div>
               )}
 
-              {/* Invariant Highlights */}
-              <div className="mb-8">
-                <div className="font-mono text-xs text-ink uppercase tracking-wider mb-4 font-bold border-b border-seam pb-2">
-                  CORE TECHNICAL NOTES
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {project.highlights.map((highlight, idx) => (
-                    <div
-                      key={idx}
-                      className="flex items-start gap-2.5 p-3 border border-seam bg-panel-recess text-xs font-mono text-ink"
-                    >
-                      <span className="text-accent font-bold">[{idx + 1}]</span>
-                      <span>{highlight}</span>
+              {/* Metrics — only rendered when there's something real to show */}
+              {Object.keys(project.metrics).length > 0 && (
+                <div className="mt-8 grid grid-cols-1 gap-px overflow-hidden rounded-xl border border-line bg-line sm:grid-cols-3">
+                  {Object.entries(project.metrics).map(([key, val]) => (
+                    <div key={key} className="bg-surface p-4">
+                      <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-faint">
+                        {key}
+                      </p>
+                      <p className="mt-1 text-sm font-medium text-ink">{val}</p>
                     </div>
                   ))}
                 </div>
-              </div>
+              )}
 
-              {/* Tech Tags */}
-              <div className="flex flex-wrap gap-1.5 mb-8 font-mono text-xs">
-                {project.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="px-2.5 py-1 bg-panel-recess text-ink border border-seam"
-                  >
-                    [{tag}]
-                  </span>
-                ))}
-              </div>
+              {/* Tags */}
+              <p className="mt-8 font-mono text-[10px] uppercase tracking-[0.18em] text-faint">
+                {project.tags.join(" · ")}
+              </p>
 
               {/* Actions */}
-              <div className="flex flex-wrap items-center gap-4 pt-6 border-t border-seam">
+              <div className="mt-8 flex flex-wrap items-center gap-3 border-t border-line pt-6">
                 <InteractiveButton
                   as="a"
                   href={project.github}
                   target="_blank"
                   rel="noopener noreferrer"
                   variant="primary"
-                  isPrimary={true}
-                  className="px-5 py-2.5 font-mono text-xs uppercase font-bold"
                 >
                   <GithubIcon size={15} />
-                  <span>OPEN REPOSITORY</span>
+                  <span>View repository</span>
                 </InteractiveButton>
 
                 {hasDistinctLiveUrl && (
@@ -262,15 +222,14 @@ export default function ProjectModal({ project, onClose }: ProjectModalProps) {
                     href={project.liveUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    variant="outline"
-                    className="px-5 py-2.5 font-mono text-xs uppercase font-bold"
+                    variant="ghost"
                   >
-                    <span>LIVE TARGET</span>
+                    <span>Live site</span>
                     <ExternalLink size={14} />
                   </InteractiveButton>
                 )}
               </div>
-            </GlassSurface>
+            </div>
           </motion.div>
         </div>
       )}

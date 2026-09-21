@@ -1,26 +1,43 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, ArrowUpRight } from "lucide-react";
-import GlassSurface from "@/components/ui/GlassSurface";
-import WindowShadeToggle from "@/components/ui/WindowShadeToggle";
-import InteractiveButton from "@/components/ui/InteractiveButton";
+import { Menu, X } from "lucide-react";
 
-const NAV_CHANNELS = [
-  { ch: "CH-01", label: "ABOUT", href: "#about", id: "about" },
-  { ch: "CH-02", label: "PROJECTS", href: "#projects", id: "projects" },
-  { ch: "CH-03", label: "SPECS", href: "#skills", id: "skills" },
-  { ch: "CH-04", label: "METRICS", href: "#stats", id: "stats" },
-  { ch: "CH-05", label: "DISPATCH", href: "#contact", id: "contact" },
+const LINKS = [
+  { label: "About", href: "#about", id: "about" },
+  { label: "Work", href: "#work", id: "work" },
+  { label: "Stack", href: "#stack", id: "stack" },
+  { label: "Numbers", href: "#stats", id: "stats" },
+  { label: "Contact", href: "#contact", id: "contact" },
 ];
 
 export default function Navbar() {
-  const [activeSection, setActiveSection] = useState("hero");
+  const [activeSection, setActiveSection] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
 
-  // Escape closes the mobile drawer and hands focus back to its trigger.
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 40);
+
+      const scrollPosition = window.scrollY + window.innerHeight * 0.35;
+      for (const { id } of LINKS) {
+        const el = document.getElementById(id);
+        if (el && scrollPosition >= el.offsetTop && scrollPosition < el.offsetTop + el.offsetHeight) {
+          setActiveSection(id);
+          break;
+        }
+      }
+    };
+
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // Escape closes the mobile menu and returns focus to the trigger.
   useEffect(() => {
     if (!mobileMenuOpen) return;
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -33,180 +50,109 @@ export default function Navbar() {
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [mobileMenuOpen]);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      const sections = ["hero", "about", "projects", "skills", "stats", "contact"];
-      const scrollPosition = window.scrollY + 200;
-
-      for (const section of sections) {
-        const el = document.getElementById(section);
-        if (el) {
-          const top = el.offsetTop;
-          const height = el.offsetHeight;
-          if (scrollPosition >= top && scrollPosition < top + height) {
-            setActiveSection(section);
-            break;
-          }
-        }
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  const scrollToSection = (e: React.MouseEvent<HTMLElement>, href: string) => {
+  const goTo = (e: React.MouseEvent<HTMLElement>, href: string) => {
     e.preventDefault();
     setMobileMenuOpen(false);
-    const targetId = href.replace("#", "");
-    const targetEl = document.getElementById(targetId);
-    if (targetEl) {
-      targetEl.scrollIntoView({ behavior: "smooth" });
-    }
+    document.getElementById(href.slice(1))?.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
     <>
-      <GlassSurface
-        as="header"
-        className="fixed top-0 left-0 right-0 z-40 border-b border-seam"
+      <motion.header
+        initial={{ y: -70, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 2.2, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+        className="fixed inset-x-0 top-4 z-40 flex justify-center px-4 sm:top-5"
       >
-        {/* Hardware Status Strip */}
-        <div className="hidden lg:flex items-center justify-between px-6 py-1 bg-panel-recess/80 border-b border-seam text-[10px] font-mono text-ink-muted">
-          <div className="flex items-center gap-4">
-            <span className="flex items-center gap-1.5 font-bold text-ink">
-              <span className="w-1.5 h-1.5 rounded-full bg-safety-green inline-block animate-pulse" />
-              BUS STATUS: 200 OK
-            </span>
-            <span>&bull;</span>
-            <span>STYLUS TOLERANCE: ±0.002mm</span>
-            <span>&bull;</span>
-            <span>NODE: AMOY TESTNET</span>
-          </div>
-          <div className="flex items-center gap-4">
-            <span>VIT CHENNAI &bull; CSE &apos;29</span>
-            <span>&bull;</span>
-            <span>COORDS: 12.8406° N, 80.1534° E</span>
-          </div>
-        </div>
-
-        {/* Primary Rack Control Bar */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-8 h-16 flex items-center justify-between">
-          {/* Machine Header ID */}
+        <nav
+          className={`flex items-center gap-1 rounded-full border py-2 pl-5 pr-2 backdrop-blur-xl transition-colors duration-500 ${
+            scrolled ? "border-line bg-bg/75" : "border-transparent bg-bg/40"
+          }`}
+          aria-label="Primary"
+        >
           <a
             href="#hero"
-            onClick={(e) => scrollToSection(e, "#hero")}
-            className="flex items-center gap-3 cursor-pointer group"
+            onClick={(e) => goTo(e, "#hero")}
+            className="mr-3 font-serif text-lg text-ink transition-colors hover:text-accent"
           >
-            <div className="w-7 h-7 bg-ink text-surface flex items-center justify-center font-mono font-bold text-xs">
-              K
-            </div>
-            <div className="flex flex-col">
-              <span className="font-sans font-bold text-base tracking-tight text-ink group-hover:text-accent transition-colors">
-                KARWIN
-              </span>
-              <span className="font-mono text-[9px] text-ink-muted tracking-wider -mt-1">
-                HARDWARE WORKSTATION // REV 2.4
-              </span>
-            </div>
+            K<span className="text-accent">.</span>
           </a>
 
-          {/* Industrial Channel Switcher */}
-          <nav className="hidden md:flex items-center divide-x divide-seam border border-seam bg-surface/90">
-            {NAV_CHANNELS.map((item) => {
-              const isActive = activeSection === item.id;
-              return (
-                <motion.a
-                  key={item.label}
-                  href={item.href}
-                  whileHover={{ scale: 1.02 }}
-                  transition={{ type: "spring", stiffness: 350, damping: 20 }}
-                  onClick={(e) => scrollToSection(e, item.href)}
-                  className={`px-4 py-2 font-mono text-xs flex items-center gap-1.5 transition-colors relative ${
-                    isActive
-                      ? "bg-ink text-surface font-bold"
-                      : "text-ink/80 hover:bg-panel-recess hover:text-ink"
-                  }`}
-                >
-                  <span className={isActive ? "text-accent" : "text-ink-muted"}>
-                    {item.ch}
-                  </span>
-                  <span>{item.label}</span>
-                </motion.a>
-              );
-            })}
-          </nav>
-
-          {/* Right Action: Airplane Window Shade Toggle + Safety Orange Actuator */}
-          <div className="flex items-center gap-3">
-            {/* Airplane-Window Theme Toggle (Section 2) */}
-            <WindowShadeToggle />
-
-            {/* Transmit Dispatch Primary CTA with shimmer sweep */}
-            <div className="hidden lg:block">
-              <InteractiveButton
-                as="a"
-                href="#contact"
-                variant="primary"
-                isPrimary={true}
-                onClick={(e) => scrollToSection(e, "#contact")}
-                className="px-4 py-2 font-mono text-xs font-bold uppercase tracking-wider"
+          <div className="hidden items-center md:flex">
+            {LINKS.map(({ label, href, id }) => (
+              <a
+                key={id}
+                href={href}
+                onClick={(e) => goTo(e, href)}
+                className={`rounded-full px-3.5 py-1.5 text-[13px] transition-colors duration-200 ${
+                  activeSection === id
+                    ? "bg-raised text-ink"
+                    : "text-muted hover:text-ink"
+                }`}
               >
-                <span>TRANSMIT DISPATCH</span>
-                <ArrowUpRight size={13} />
-              </InteractiveButton>
-            </div>
-
-            {/* Mobile Menu Button */}
-            <button
-              ref={menuButtonRef}
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 border border-seam bg-surface text-ink hover:border-accent transition-colors"
-              aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
-              aria-expanded={mobileMenuOpen}
-              aria-controls="mobile-menu-drawer"
-            >
-              {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
-            </button>
+                {label}
+              </a>
+            ))}
           </div>
-        </div>
-      </GlassSurface>
 
-      {/* Mobile Control Drawer */}
+          <a
+            href="#contact"
+            onClick={(e) => goTo(e, "#contact")}
+            className="ml-2 hidden rounded-full bg-accent px-4 py-1.5 text-[13px] font-semibold text-bg transition-all hover:brightness-110 md:inline-block"
+          >
+            Let&apos;s talk
+          </a>
+
+          <button
+            ref={menuButtonRef}
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-line text-ink md:hidden"
+            aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={mobileMenuOpen}
+            aria-controls="mobile-menu"
+          >
+            {mobileMenuOpen ? <X size={17} /> : <Menu size={17} />}
+          </button>
+        </nav>
+      </motion.header>
+
+      {/* Mobile full-screen menu */}
       <AnimatePresence>
         {mobileMenuOpen && (
           <motion.div
-            id="mobile-menu-drawer"
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="fixed inset-x-0 top-16 z-40 bg-chassis border-b border-seam md:hidden px-6 py-6 shadow-md flex flex-col gap-4 overflow-hidden"
+            id="mobile-menu"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            className="fixed inset-0 z-30 flex flex-col justify-center bg-bg/95 px-8 backdrop-blur-xl md:hidden"
           >
-            <div className="flex flex-col border border-seam divide-y divide-seam bg-surface">
-              {NAV_CHANNELS.map((item) => (
-                <a
-                  key={item.label}
-                  href={item.href}
-                  onClick={(e) => scrollToSection(e, item.href)}
-                  className="px-4 py-3 font-mono text-xs text-ink flex items-center justify-between hover:bg-panel-recess transition-colors"
+            <ul className="space-y-2">
+              {LINKS.map(({ label, href }, i) => (
+                <motion.li
+                  key={href}
+                  initial={{ opacity: 0, y: 24 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.08 + i * 0.06, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
                 >
-                  <span className="font-bold text-accent">{item.ch}</span>
-                  <span className="font-semibold">{item.label}</span>
-                  <span>→</span>
-                </a>
+                  <a
+                    href={href}
+                    onClick={(e) => goTo(e, href)}
+                    className="block border-b border-line py-4 font-serif text-4xl text-ink transition-colors hover:text-accent"
+                  >
+                    {label}
+                  </a>
+                </motion.li>
               ))}
-            </div>
-
-            <InteractiveButton
-              as="a"
-              href="#contact"
-              variant="primary"
-              isPrimary={true}
-              onClick={(e) => scrollToSection(e, "#contact")}
-              className="w-full text-center py-3 font-mono text-xs font-bold uppercase"
+            </ul>
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+              className="mt-10 font-mono text-[10px] uppercase tracking-[0.25em] text-faint"
             >
-              INITIATE DISPATCH
-            </InteractiveButton>
+              Chennai, India — Open to build
+            </motion.p>
           </motion.div>
         )}
       </AnimatePresence>

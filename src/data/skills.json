@@ -1,70 +1,35 @@
 {
-  "categories": [
-    {
-      "id": "languages",
-      "name": "Languages & Core",
-      "color": "from-violet-500 to-purple-600",
-      "skills": [
-        { "name": "TypeScript", "level": 90, "icon": "ts", "highlight": "Primary language for web apps & type safety" },
-        { "name": "JavaScript", "level": 95, "icon": "js", "highlight": "Async runtime, event loops, DOM mastery" },
-        { "name": "Python", "level": 88, "icon": "py", "highlight": "AI prototyping, LLM pipelines, scripts" },
-        { "name": "C++", "level": 82, "icon": "cpp", "highlight": "Data structures, algorithms & memory" },
-        { "name": "Java", "level": 80, "icon": "java", "highlight": "OOP foundations & enterprise patterns" },
-        { "name": "HTML5 / CSS3", "level": 95, "icon": "html", "highlight": "Semantic markup, modern layout & animations" }
-      ]
-    },
-    {
-      "id": "frontend",
-      "name": "Frontend & Sensory UI",
-      "color": "from-blue-500 to-cyan-500",
-      "skills": [
-        { "name": "React / Next.js", "level": 92, "icon": "nextjs", "highlight": "App Router, SSR, Server Components" },
-        { "name": "Tailwind CSS", "level": 94, "icon": "tailwind", "highlight": "Fluid typography, dark modes, design systems" },
-        { "name": "Framer Motion", "level": 88, "icon": "framer", "highlight": "Spring physics, layout animations, gestures" },
-        { "name": "GSAP & ScrollTrigger", "level": 85, "icon": "gsap", "highlight": "Pinning, parallax, scroll-scrubbed reveals" },
-        { "name": "Flutter", "level": 85, "icon": "flutter", "highlight": "Cross-platform mobile UI & local-first widgets" },
-        { "name": "Vue.js", "level": 78, "icon": "vue", "highlight": "Component reactivity & templates" }
-      ]
-    },
-    {
-      "id": "backend",
-      "name": "Backend & Cloud Systems",
-      "color": "from-emerald-500 to-teal-500",
-      "skills": [
-        { "name": "Node.js & Express", "level": 88, "icon": "nodejs", "highlight": "RESTful microservices, middleware, async I/O" },
-        { "name": "PostgreSQL & Prisma", "level": 84, "icon": "postgres", "highlight": "Relational schemas, indexing & transactions" },
-        { "name": "MongoDB", "level": 85, "icon": "mongodb", "highlight": "Document datastores, aggregations, atlas" },
-        { "name": "Firebase", "level": 86, "icon": "firebase", "highlight": "Auth, Firestore, rules, real-time sync" },
-        { "name": "MySQL", "level": 82, "icon": "mysql", "highlight": "Relational queries, ACID normalization" }
-      ]
-    },
-    {
-      "id": "ai-agents",
-      "name": "AI, LLMs & Agents",
-      "color": "from-pink-500 to-rose-500",
-      "skills": [
-        { "name": "LangChain & Agents", "level": 86, "icon": "langchain", "highlight": "Autonomous tool use, reasoning chains, memory" },
-        { "name": "OpenAI & Claude API", "level": 92, "icon": "openai", "highlight": "Structured outputs, function calling, vision" },
-        { "name": "PyTorch & TensorFlow", "level": 78, "icon": "pytorch", "highlight": "Neural network training & inference loops" },
-        { "name": "Vibe Coding & Pair AI", "level": 98, "icon": "vibe", "highlight": "Rapid agentic generation & iterative synthesis" }
-      ]
-    },
-    {
-      "id": "blockchain-tools",
-      "name": "Web3 & Developer Tooling",
-      "color": "from-amber-500 to-orange-500",
-      "skills": [
-        { "name": "Solidity", "level": 80, "icon": "solidity", "highlight": "EVM smart contracts, state immutability, ERCs" },
-        { "name": "Polygon Amoy & Web3", "level": 82, "icon": "polygon", "highlight": "Layer-2 deployment, Ethers.js, MetaMask" },
-        { "name": "Git & GitHub", "level": 92, "icon": "git", "highlight": "Branching, PRs, actions, repo architecture" },
-        { "name": "Figma", "level": 85, "icon": "figma", "highlight": "UI wireframes, design systems, vector art" },
-        { "name": "Vercel & Postman", "level": 90, "icon": "vercel", "highlight": "Edge deployments, API testing, observability" }
-      ]
-    }
+  "marquee": [
+    "TypeScript",
+    "React / Next.js",
+    "Python",
+    "Tailwind CSS",
+    "Node.js",
+    "Solidity",
+    "Framer Motion",
+    "Three.js",
+    "PostgreSQL",
+    "Flutter",
+    "LangChain",
+    "Ethers.js"
   ],
-  "inProgress": [
-    { "subject": "LLMs & Autonomous Agent Frameworks", "progress": 92, "badge": "High Priority", "color": "#8B5CF6" },
-    { "subject": "Full-Stack Enterprise Systems & Scalability", "progress": 88, "badge": "Core Competency", "color": "#3B82F6" },
-    { "subject": "Sensory UI/UX & High-FPS WebGL Motion", "progress": 85, "badge": "Creative Passion", "color": "#EC4899" }
+  "marqueeAlt": [
+    "OpenAI & Claude API",
+    "PyTorch",
+    "MongoDB",
+    "Firebase",
+    "Prisma",
+    "Figma",
+    "Git & GitHub",
+    "Vercel",
+    "WebSockets",
+    "MapLibre",
+    "Docker",
+    "C++"
+  ],
+  "learning": [
+    "Autonomous agent frameworks",
+    "High-FPS WebGL motion",
+    "Distributed systems"
   ]
 }

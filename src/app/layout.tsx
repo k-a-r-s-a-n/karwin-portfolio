@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import SmoothScrollProvider from "@/components/providers/SmoothScrollProvider";
 import CustomCursor from "@/components/cursor/CustomCursor";
 import Preloader from "@/components/ui/Preloader";
@@ -9,18 +8,28 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import ScrollFlow from "@/components/3d/ScrollFlow";
 
-// Self-hosted variable fonts (see src/app/fonts/NOTICE.txt). No network request
-// to Google Fonts at build time or runtime — the site builds fully offline.
-const spaceGrotesk = localFont({
-  src: "./fonts/space-grotesk-latin.woff2",
-  variable: "--font-sans",
+// Self-hosted fonts (see src/app/fonts/NOTICE.txt) — no network dependency,
+// builds fully offline. Instrument Serif carries the display voice; Inter
+// handles body copy; JetBrains Mono is reserved for tiny technical labels.
+const display = localFont({
+  src: [
+    { path: "./fonts/instrument-serif-latin-400-normal.woff2", style: "normal", weight: "400" },
+    { path: "./fonts/instrument-serif-latin-400-italic.woff2", style: "italic", weight: "400" },
+  ],
+  variable: "--font-display",
   display: "swap",
-  weight: "300 700",
+});
+
+const inter = localFont({
+  src: "./fonts/inter-latin-wght-normal.woff2",
+  variable: "--font-inter",
+  display: "swap",
+  weight: "100 900",
 });
 
 const jetbrainsMono = localFont({
   src: "./fonts/jetbrains-mono-latin.woff2",
-  variable: "--font-mono",
+  variable: "--font-mono-jb",
   display: "swap",
   weight: "100 800",
 });
@@ -74,29 +83,18 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#F4F4F5" },
-    { media: "(prefers-color-scheme: dark)", color: "#09090B" },
-  ],
+  themeColor: "#0A0A0B",
 };
 
 /**
- * Runs before first paint so there is never a theme flash, and so the boot
- * overlay can be skipped without a flicker:
- *  - restores the saved theme (or follows the OS preference)
- *  - marks repeat visits with `skip-boot` so the Preloader only runs once
- *    per browser session, and never for reduced-motion visitors
- *  - marks booting state so the page stays hidden until the overlay lifts
+ * Runs before first paint. The site is dark-only; this script decides whether
+ * the boot overlay should run at all:
+ *  - repeat visit this session → `skip-boot` (no splash)
+ *  - reduced motion → `skip-boot` (never animate)
+ *  - otherwise → `is-booting` (page hidden until the curtain lifts)
  */
 const bootstrapScript = `
 (function () {
-  try {
-    var stored = localStorage.getItem('karwin-theme');
-    var dark = stored ? stored === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
-    document.documentElement.classList.toggle('dark', dark);
-  } catch (e) {
-    document.documentElement.classList.remove('dark');
-  }
   try {
     var booted = sessionStorage.getItem('karwin-booted');
     var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -117,41 +115,34 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${spaceGrotesk.variable} ${jetbrainsMono.variable}`}
+      className={`${display.variable} ${inter.variable} ${jetbrainsMono.variable}`}
       suppressHydrationWarning
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: bootstrapScript }} />
       </head>
       <body
-        className="bg-chassis text-ink antialiased overflow-x-hidden font-sans relative selection:bg-safety-orange selection:text-white"
-        style={{ fontFamily: "var(--font-sans), sans-serif" }}
+        className="relative overflow-x-hidden bg-bg font-sans text-ink antialiased selection:bg-accent selection:text-bg"
+        style={{ fontFamily: "var(--font-inter), ui-sans-serif, system-ui, sans-serif" }}
         suppressHydrationWarning
       >
-        <a
-          href="#main-content"
-          className="skip-link"
-        >
+        <a href="#main-content" className="skip-link">
           Skip to main content
         </a>
 
-        <ThemeProvider>
-          {/* Scroll-Linked Ambient Background Flow (atmospheric drift layer) */}
-          <ScrollFlow />
+        {/* Atmosphere + film grain */}
+        <ScrollFlow />
+        <div className="grain" aria-hidden="true" />
 
-          <Preloader />
-          <SmoothScrollProvider>
-            <CustomCursor />
-            <Navbar />
-            <main
-              id="main-content"
-              className="relative z-10 min-h-screen flex flex-col"
-            >
-              {children}
-            </main>
-            <Footer />
-          </SmoothScrollProvider>
-        </ThemeProvider>
+        <Preloader />
+        <SmoothScrollProvider>
+          <CustomCursor />
+          <Navbar />
+          <main id="main-content" className="relative z-10 flex min-h-screen flex-col">
+            {children}
+          </main>
+          <Footer />
+        </SmoothScrollProvider>
       </body>
     </html>
   );

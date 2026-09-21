@@ -1,63 +1,33 @@
 @import "tailwindcss";
 
 @theme {
-  --color-chassis: var(--chassis);
-  --color-surface: var(--surface);
-  --color-seam: var(--seam);
-  --color-panel-recess: var(--panel-recess);
-  --color-ink: var(--ink);
-  --color-ink-muted: var(--ink-muted);
-  --color-safety-orange: var(--safety-orange);
-  --color-safety-green: var(--safety-green);
-  --color-accent: var(--accent);
+  --color-bg: #0a0a0b;
+  --color-surface: #121214;
+  --color-raised: #1a1a1d;
+  --color-ink: #f2f1ec;
+  --color-muted: #8f8f8a;
+  --color-faint: #55554f;
+  --color-accent: #c9f158;
+  --color-line: rgba(242, 241, 236, 0.09);
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-display), ui-serif, Georgia, serif;
+  --font-mono: var(--font-mono-jb), ui-monospace, "SF Mono", monospace;
 }
 
 :root {
-  --chassis: #F4F4F5;
-  --surface: #FFFFFF;
-  --seam: #D4D4D8;
-  --panel-recess: #E4E4E7;
-  --ink: #18181B;
-  --ink-muted: #71717A;
-  --safety-orange: #FF3322;
-  --safety-green: #16A34A;
-  --accent: var(--safety-orange);
+  --bg: #0a0a0b;
+  --ink: #f2f1ec;
+  --muted: #8f8f8a;
+  --accent: #c9f158;
+  --line: rgba(242, 241, 236, 0.09);
 
-  /* ─── Liquid Glass Design Tokens (Light) ─── */
-  --glass-bg: rgba(255, 255, 255, 0.72);
-  --glass-border-start: rgba(255, 255, 255, 0.85);
-  --glass-border-end: rgba(255, 255, 255, 0.15);
-  --glass-inner-highlight: inset 0 1px 1px 0 rgba(255, 255, 255, 0.85), inset 0 -1px 1px 0 rgba(24, 24, 27, 0.04);
-  --glass-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.08);
+  /* ScrollFlow atmosphere */
+  --glow-1: rgba(201, 241, 88, 0.07);
+  --glow-2: rgba(124, 140, 255, 0.06);
+  --glow-3: rgba(255, 138, 76, 0.045);
 
-  /* ─── ScrollFlow Atmosphere (Light) ─── */
-  --bg-mesh-1: rgba(255, 51, 34, 0.06);
-  --bg-mesh-2: rgba(22, 163, 74, 0.04);
-  --bg-mesh-3: rgba(14, 165, 233, 0.05);
-}
-
-html.dark {
-  --chassis: #09090B;
-  --surface: #141417;
-  --seam: #27272A;
-  --panel-recess: #18181B;
-  --ink: #F4F4F5;
-  --ink-muted: #A1A1AA;
-  --safety-orange: #FF4D36;
-  --safety-green: #22C55E;
-  --accent: var(--safety-orange);
-
-  /* ─── Liquid Glass Design Tokens (Dark) ─── */
-  --glass-bg: rgba(20, 20, 24, 0.68);
-  --glass-border-start: rgba(255, 255, 255, 0.25);
-  --glass-border-end: rgba(255, 255, 255, 0.03);
-  --glass-inner-highlight: inset 0 1px 1px 0 rgba(255, 255, 255, 0.22), inset 0 -1px 1px 0 rgba(0, 0, 0, 0.5);
-  --glass-shadow: 0 16px 40px -12px rgba(0, 0, 0, 0.65);
-
-  /* ─── ScrollFlow Atmosphere (Dark) ─── */
-  --bg-mesh-1: rgba(255, 77, 54, 0.09);
-  --bg-mesh-2: rgba(34, 197, 94, 0.04);
-  --bg-mesh-3: rgba(99, 102, 241, 0.07);
+  color-scheme: dark;
 }
 
 * {
@@ -66,23 +36,36 @@ html.dark {
 
 html {
   scroll-behavior: auto;
-  background-color: var(--chassis);
-  color: var(--ink);
-  transition: background-color 0.3s ease, color 0.3s ease;
+  background-color: var(--bg);
 }
 
 body {
-  background-color: var(--chassis);
+  background-color: var(--bg);
   color: var(--ink);
   overflow-x: hidden;
   position: relative;
-  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
-  transition: background-color 0.3s ease, color 0.3s ease;
+  -webkit-font-smoothing: antialiased;
 }
 
 ::selection {
-  background: var(--safety-orange);
-  color: #ffffff;
+  background: var(--accent);
+  color: #0a0a0b;
+}
+
+/* ─── Scrollbar — thin, unobtrusive ─── */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+::-webkit-scrollbar-thumb {
+  background: #2a2a2e;
+  border-radius: 8px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3a3a40;
 }
 
 /* ─── Lenis Smooth Scroll ─── */
@@ -90,214 +73,69 @@ html.lenis,
 html.lenis body {
   height: auto;
 }
-
 .lenis.lenis-smooth {
   scroll-behavior: auto !important;
 }
-
 .lenis.lenis-smooth [data-lenis-prevent] {
   overscroll-behavior: contain;
 }
-
 .lenis.lenis-stopped {
   overflow: hidden;
 }
-
 .lenis.lenis-scrolling iframe {
   pointer-events: none;
-}
-
-/* ─── Industrial Hardware Scrollbar ─── */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--panel-recess);
-  border-left: 1px solid var(--seam);
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--safety-orange);
-  border-radius: 0px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #e02817;
-}
-
-/* ─── Hardware Grid Seams ─── */
-.panel-grid {
-  background-size: 32px 32px;
-  background-image:
-    linear-gradient(to right, var(--seam) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--seam) 1px, transparent 1px);
-  background-position: top left;
-}
-
-/* ─── Mechanical Seam Border Utility ─── */
-.seam-border {
-  border: 1px solid var(--seam);
-}
-
-.seam-x {
-  border-left: 1px solid var(--seam);
-  border-right: 1px solid var(--seam);
-}
-
-.seam-y {
-  border-top: 1px solid var(--seam);
-  border-bottom: 1px solid var(--seam);
-}
-
-/* ─── Industrial Panel Faces ─── */
-.panel-surface {
-  background-color: var(--surface);
-  border: 1px solid var(--seam);
-}
-
-.panel-recess {
-  background-color: var(--panel-recess);
-  border: 1px solid var(--seam);
-}
-
-/* ─── Hardware Corner Rivet / Bolt Graphic ─── */
-.has-rivets {
-  position: relative;
-}
-
-.has-rivets::before,
-.has-rivets::after {
-  content: "";
-  position: absolute;
-  width: 5px;
-  height: 5px;
-  background-color: var(--ink-muted);
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 2;
-}
-
-.has-rivets::before {
-  top: 6px;
-  left: 6px;
-  box-shadow: 0 0 0 1px var(--seam);
-}
-
-.has-rivets::after {
-  top: 6px;
-  right: 6px;
-  box-shadow: 0 0 0 1px var(--seam);
-}
-
-/* ─── Safety Orange Indicator Tag ─── */
-.badge-orange {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  background-color: var(--safety-orange);
-  color: #FFFFFF;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  padding: 2px 6px;
-  text-transform: uppercase;
-}
-
-.badge-zinc {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  background-color: var(--panel-recess);
-  color: var(--ink);
-  border: 1px solid var(--seam);
-  font-family: var(--font-mono);
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  padding: 2px 6px;
-  text-transform: uppercase;
-}
-
-/* ─── Button Shimmer Keyframes ─── */
-@keyframes shimmer-sweep {
-  0% {
-    transform: translateX(-150%) skewX(-20deg);
-  }
-  100% {
-    transform: translateX(180%) skewX(-20deg);
-  }
-}
-
-.animate-shimmer {
-  animation: shimmer-sweep 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 /* ─── Skip Link (keyboard navigation) ─── */
 .skip-link {
   position: fixed;
-  top: 8px;
-  left: 8px;
+  top: 10px;
+  left: 10px;
   z-index: 200;
   padding: 10px 16px;
-  background-color: var(--ink);
-  color: var(--surface);
-  font-family: var(--font-mono);
+  background: var(--accent);
+  color: #0a0a0b;
+  font-family: var(--font-mono-jb), monospace;
   font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+  font-weight: 600;
+  border-radius: 8px;
   transform: translateY(-200%);
   transition: transform 150ms ease;
 }
-
 .skip-link:focus-visible {
   transform: translateY(0);
 }
 
 /* ─── Boot overlay state ───
-   While the preloader runs, lock scrolling and hide content from the
-   accessibility tree so keyboard focus cannot land behind the overlay. */
+   While the preloader runs, lock scrolling and keep content out of the
+   accessibility tree so focus cannot land behind the overlay. */
 html.is-booting {
   overflow: hidden;
 }
-
 html.is-booting main,
 html.is-booting header,
 html.is-booting footer {
   visibility: hidden;
 }
 
-/* ─── Keyboard Focus ───
-   One consistent, high-contrast indicator everywhere (2px offset keeps it
-   visible against both panel and recess backgrounds). */
+/* ─── Keyboard Focus ─── */
 a:focus-visible,
 button:focus-visible,
 [tabindex]:focus-visible {
-  outline: 2px solid var(--safety-orange);
-  outline-offset: 2px;
-}
-
-input:focus-visible,
-textarea:focus-visible,
-select:focus-visible {
-  outline: 2px solid var(--safety-orange);
-  outline-offset: 0;
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 2px;
 }
 
 /* ─── Custom Cursor ───
    `cursor-active` is set by JS only on fine-pointer devices without reduced
-   motion. The native cursor is hidden so the machined dot/ring replaces it;
-   text fields keep the I-beam for precise caret placement. */
+   motion. Text fields keep the I-beam. */
 html.cursor-active body,
 html.cursor-active a,
 html.cursor-active button,
 html.cursor-active label {
   cursor: none;
 }
-
 html.cursor-active input,
 html.cursor-active textarea,
 html.cursor-active select {
@@ -313,42 +151,122 @@ html.cursor-active select {
   pointer-events: none;
   will-change: transform;
 }
-
 .cursor-dot {
   width: 6px;
   height: 6px;
   border-radius: 9999px;
-  background-color: var(--safety-orange);
-  box-shadow: 0 0 8px 0 rgba(255, 51, 34, 0.55);
+  background-color: var(--accent);
 }
-
 .cursor-ring {
-  width: 30px;
-  height: 30px;
+  width: 32px;
+  height: 32px;
   border-radius: 9999px;
-  border: 1.5px solid var(--ink-muted);
+  border: 1px solid rgba(242, 241, 236, 0.35);
   transition: width 180ms ease, height 180ms ease, border-color 180ms ease,
     background-color 180ms ease;
 }
-
-/* Ring grows and fills when hovering anything interactive. `interactive` is
-   toggled by the cursor script via pointerover/out (event delegation). */
 html.cursor-interactive .cursor-ring {
-  width: 44px;
-  height: 44px;
-  border-color: var(--safety-orange);
-  background-color: color-mix(in srgb, var(--safety-orange) 12%, transparent);
+  width: 52px;
+  height: 52px;
+  border-color: var(--accent);
+  background-color: rgba(201, 241, 88, 0.08);
 }
 
-/* The dot reads on dark panels via a light core in dark mode */
-html.dark .cursor-dot {
-  background-color: var(--safety-orange);
-  box-shadow: 0 0 10px 1px rgba(255, 77, 54, 0.7);
+/* ─── Film grain overlay ─── */
+.grain {
+  position: fixed;
+  inset: -50%;
+  z-index: 90;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 256px 256px;
 }
 
-/* ─── Reduced Motion ───
-   Kill looping/animated CSS effects globally; component-level JS animation is
-   handled individually (Framer's useReducedMotion, Lenis and cursor opt-out). */
+/* ─── Marquee ─── */
+@keyframes marquee-left {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+@keyframes marquee-right {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+.marquee-track {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+}
+.marquee-left {
+  animation: marquee-left var(--marquee-duration, 42s) linear infinite;
+}
+.marquee-right {
+  animation: marquee-right var(--marquee-duration, 48s) linear infinite;
+}
+.marquee-mask {
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 12%,
+    black 88%,
+    transparent
+  );
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 12%,
+    black 88%,
+    transparent
+  );
+}
+
+/* ─── Pulsing availability dot ─── */
+@keyframes ping-soft {
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  80%,
+  100% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+.ping-soft {
+  animation: ping-soft 1.8s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+/* ─── Slow spin for orbit rings ─── */
+@keyframes spin-slow {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.spin-slow {
+  animation: spin-slow 24s linear infinite;
+}
+
+/* ─── Link underline sweep ─── */
+.link-sweep {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-size: 0% 1px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  transition: background-size 350ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.link-sweep:hover {
+  background-size: 100% 1px;
+}
+
+/* ─── Reduced Motion ─── */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -358,12 +276,10 @@ html.dark .cursor-dot {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-
   .cursor-dot,
   .cursor-ring {
     display: none;
   }
-
   html.cursor-active body,
   html.cursor-active a,
   html.cursor-active button,

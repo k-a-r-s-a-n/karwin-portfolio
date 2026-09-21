@@ -1,22 +1,36 @@
 {
   "githubUsername": "k-a-r-s-a-n",
-  "stats": [
-    { "label": "Academic Status", "value": "2nd Year B.Tech CSE", "detail": "VIT Chennai (2025–2029)" },
-    { "label": "Open Source Repos", "value": "7 Public", "detail": "Every build inspectable on GitHub" },
-    { "label": "Engineering Focus", "value": "Full-Stack + Agents", "detail": "Web · Blockchain · GIS · LLM tooling" },
-    { "label": "Availability", "value": "Open to Build", "detail": "Hackathons & collaborations" }
+  "metrics": [
+    {
+      "value": 4,
+      "suffix": "",
+      "label": "Flagship builds",
+      "note": "shipped & open source",
+      "static": false
+    },
+    {
+      "value": 7,
+      "suffix": "",
+      "label": "Public repos",
+      "note": "on GitHub",
+      "static": false
+    },
+    {
+      "value": 20,
+      "suffix": "+",
+      "label": "Tools & technologies",
+      "note": "across the stack",
+      "static": false
+    },
+    {
+      "value": 2025,
+      "suffix": "",
+      "label": "Building since",
+      "note": "first commit \u2192 today",
+      "static": true
+    }
   ],
   "github": {
-    "label": "GITHUB ACTIVITY REGISTERS",
-    "publicRepos": 7,
-    "topLanguages": ["TypeScript", "Python", "Dart", "JavaScript"],
-    "since": "2025",
-    "note": "Counts synced from the GitHub API — the live profile is the source of truth."
-  },
-  "builds": [
-    { "title": "Solidity Smart Contract Deployer", "subtitle": "Car-Passport — Polygon Amoy vehicle ledger", "ref": "MOD-01" },
-    { "title": "Civic Open Data Platform", "subtitle": "CivicLens — geospatial ward accountability", "ref": "MOD-02" },
-    { "title": "Hardware AI Synthesizer", "subtitle": "Prompt-to-Verilog generation pipeline", "ref": "MOD-03" },
-    { "title": "Local-First Flutter App", "subtitle": "Campus QuickSplit — offline expense graph", "ref": "MOD-04" }
-  ]
+    "note": "Counts synced from the GitHub API \u2014 the live profile is the source of truth."
+  }
 }
