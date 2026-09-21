@@ -34,7 +34,6 @@ export default function GlassSurface({
   className = "",
   as: Component = "div",
   distort = false,
-  intensity = "normal",
   interactive = false,
   style = {},
   onMouseEnter,

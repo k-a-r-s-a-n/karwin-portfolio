@@ -22,6 +22,8 @@ export default function TechStack() {
       className="py-20 px-4 sm:px-8 max-w-7xl mx-auto"
     >
       <Reveal stagger={0.08}>
+        <h2 className="sr-only">Tech stack and current learning</h2>
+
         {/* Section Header Bar */}
         <GlassSurface className="p-4 sm:px-6 flex flex-wrap items-center justify-between gap-4 text-xs font-mono mb-8 border border-seam">
           <div className="flex items-center gap-3">
@@ -33,6 +35,7 @@ export default function TechStack() {
           <div className="flex flex-wrap items-center border border-seam divide-x divide-seam bg-panel-recess">
             <button
               onClick={() => setSelectedCategory("all")}
+              aria-pressed={selectedCategory === "all"}
               className={`px-3 py-1 font-mono text-xs uppercase font-semibold transition-colors cursor-pointer ${
                 selectedCategory === "all"
                   ? "bg-ink text-surface"
@@ -45,6 +48,7 @@ export default function TechStack() {
               <button
                 key={cat.id}
                 onClick={() => setSelectedCategory(cat.id)}
+                aria-pressed={selectedCategory === cat.id}
                 className={`px-3 py-1 font-mono text-xs uppercase font-semibold transition-colors cursor-pointer ${
                   selectedCategory === cat.id
                     ? "bg-ink text-surface"
@@ -99,7 +103,7 @@ export default function TechStack() {
 
                     {/* Application Note */}
                     <div className="md:col-span-5 font-mono text-xs text-ink-muted">
-                      // {skill.highlight}
+                      {"//"} {skill.highlight}
                     </div>
                   </div>
                 ))}

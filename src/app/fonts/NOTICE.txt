@@ -1,0 +1,8 @@
+Bundled web fonts — self-hosted so the app builds and runs without network access
+to fonts.googleapis.com (also removes a render-blocking third-party round trip).
+
+- space-grotesk-latin.woff2  — Space Grotesk (variable, latin subset)
+- jetbrains-mono-latin.woff2 — JetBrains Mono (variable, latin subset)
+
+Both licensed under the SIL Open Font License 1.1.
+Upstream sources: https://github.com/fontsource/fontsource

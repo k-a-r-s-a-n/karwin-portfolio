@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import React, { useEffect, useRef } from "react";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { X, ExternalLink } from "lucide-react";
 import { GithubIcon } from "@/components/ui/Icons";
 import Image from "next/image";
 import GlassSurface from "@/components/ui/GlassSurface";
 import InteractiveButton from "@/components/ui/InteractiveButton";
+import { getLenis } from "@/lib/lenis";
 
 export interface ProjectData {
   id: string;
@@ -32,20 +33,77 @@ interface ProjectModalProps {
   onClose: () => void;
 }
 
+const FOCUSABLE_SELECTOR =
+  "a[href], button:not([disabled]), [tabindex]:not([tabindex='-1'])";
+
 export default function ProjectModal({ project, onClose }: ProjectModalProps) {
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
+  const shouldReduceMotion = useReducedMotion();
+
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+    if (!project) return;
+
+    previousFocusRef.current = document.activeElement as HTMLElement | null;
+
+    const dialog = dialogRef.current;
+
+    const getFocusable = () =>
+      dialog
+        ? Array.from(
+            dialog.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)
+          ).filter((el) => el.offsetParent !== null)
+        : [];
+
+    // Move focus into the dialog on open.
+    getFocusable()[0]?.focus();
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        onClose();
+        return;
+      }
+
+      // Focus trap: cycle Tab within the dialog while it is open.
+      if (event.key === "Tab" && dialog) {
+        const focusable = getFocusable();
+        if (focusable.length === 0) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        const active = document.activeElement;
+
+        if (event.shiftKey && (active === first || !dialog.contains(active))) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && active === last) {
+          event.preventDefault();
+          first.focus();
+        }
+      }
     };
-    if (project) {
-      document.body.style.overflow = "hidden";
-      window.addEventListener("keydown", handleKeyDown);
-    }
+
+    document.addEventListener("keydown", handleKeyDown);
+
+    // Freeze background scrolling — Lenis must be stopped explicitly,
+    // `overflow: hidden` alone doesn't hold it.
+    const lenis = getLenis();
+    lenis?.stop();
+    document.body.style.overflow = "hidden";
+
     return () => {
-      document.body.style.overflow = "unset";
-      window.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = "";
+      lenis?.start();
+      // Hand focus back to the trigger that opened the dialog.
+      previousFocusRef.current?.focus?.();
     };
   }, [project, onClose]);
+
+  // A "LIVE" link that just points back at the repo is a lie of chrome —
+  // only offer it when it actually goes somewhere different.
+  const hasDistinctLiveUrl =
+    !!project?.liveUrl && project.liveUrl !== project.github;
 
   return (
     <AnimatePresence>
@@ -57,6 +115,7 @@ export default function ProjectModal({ project, onClose }: ProjectModalProps) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
+            aria-hidden="true"
             className="fixed inset-0 cursor-pointer"
             style={{
               backgroundColor: "rgba(9, 9, 11, 0.65)",
@@ -67,10 +126,14 @@ export default function ProjectModal({ project, onClose }: ProjectModalProps) {
 
           {/* Modal Container: Technical Inspection Dossier using GlassSurface */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.98, y: 12 }}
+            ref={dialogRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={`project-modal-title-${project.id}`}
+            initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.98, y: 12 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.98, y: 12 }}
-            transition={{ type: "spring", damping: 28, stiffness: 350 }}
+            exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.98, y: 12 }}
+            transition={shouldReduceMotion ? { duration: 0.15 } : { type: "spring", damping: 28, stiffness: 350 }}
             className="relative w-full max-w-4xl max-h-[88vh] overflow-y-auto z-10 text-ink has-rivets shadow-2xl"
           >
             <GlassSurface className="p-6 sm:p-10 border border-seam">
@@ -79,7 +142,7 @@ export default function ProjectModal({ project, onClose }: ProjectModalProps) {
                 <div className="flex items-center gap-3">
                   <span className="badge-orange">{project.category}</span>
                   <span className="font-bold text-ink">
-                    INSPECTION DOSSIER // {project.id.toUpperCase()}
+                    INSPECTION DOSSIER {"//"} {project.id.toUpperCase()}
                   </span>
                 </div>
 
@@ -98,11 +161,10 @@ export default function ProjectModal({ project, onClose }: ProjectModalProps) {
                 <div className="relative w-full h-full overflow-hidden">
                   <Image
                     src={project.coverImage}
-                    alt={project.title}
+                    alt={`${project.title} — project cover`}
                     fill
                     sizes="(max-width: 768px) 100vw, 80vw"
                     className="object-cover"
-                    priority
                   />
                 </div>
                 <div className="absolute bottom-4 left-4 bg-ink text-surface px-3 py-1 font-mono text-[10px] font-bold uppercase">
@@ -112,11 +174,14 @@ export default function ProjectModal({ project, onClose }: ProjectModalProps) {
 
               {/* Title & Subtitle */}
               <div className="mb-6">
-                <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-ink uppercase mb-2">
+                <h2
+                  id={`project-modal-title-${project.id}`}
+                  className="text-3xl sm:text-4xl font-bold tracking-tight text-ink uppercase mb-2"
+                >
                   {project.title}
                 </h2>
                 <p className="font-mono text-sm text-accent font-semibold">
-                  // {project.subtitle}
+                  {"//"} {project.subtitle}
                 </p>
               </div>
 
@@ -126,28 +191,30 @@ export default function ProjectModal({ project, onClose }: ProjectModalProps) {
               </p>
 
               {/* Measured Metrics Spec Table */}
-              <div className="mb-8 border border-seam bg-panel-recess/60">
-                <div className="font-mono text-xs uppercase px-4 py-2 border-b border-seam text-ink font-bold bg-panel-recess">
-                  INSTRUMENTATION METRICS &amp; OPERATIONAL BENCHMARKS
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-seam">
-                  {Object.entries(project.metrics).map(([key, val]) => (
-                    <div key={key} className="p-4">
-                      <div className="font-mono text-[10px] text-ink-muted uppercase mb-1">
-                        {key.replace(/([A-Z])/g, " $1")}
+              {Object.keys(project.metrics).length > 0 && (
+                <div className="mb-8 border border-seam bg-panel-recess/60">
+                  <div className="font-mono text-xs uppercase px-4 py-2 border-b border-seam text-ink font-bold bg-panel-recess">
+                    INSTRUMENTATION METRICS &amp; OPERATIONAL BENCHMARKS
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-seam">
+                    {Object.entries(project.metrics).map(([key, val]) => (
+                      <div key={key} className="p-4">
+                        <div className="font-mono text-[10px] text-ink-muted uppercase mb-1">
+                          {key.replace(/([A-Z])/g, " $1")}
+                        </div>
+                        <div className="font-mono text-base font-bold text-ink">
+                          {val}
+                        </div>
                       </div>
-                      <div className="font-mono text-base font-bold text-ink">
-                        {val}
-                      </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Invariant Highlights */}
               <div className="mb-8">
                 <div className="font-mono text-xs text-ink uppercase tracking-wider mb-4 font-bold border-b border-seam pb-2">
-                  CORE TECHNICAL INVARIANTS
+                  CORE TECHNICAL NOTES
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {project.highlights.map((highlight, idx) => (
@@ -189,7 +256,7 @@ export default function ProjectModal({ project, onClose }: ProjectModalProps) {
                   <span>OPEN REPOSITORY</span>
                 </InteractiveButton>
 
-                {project.liveUrl && (
+                {hasDistinctLiveUrl && (
                   <InteractiveButton
                     as="a"
                     href={project.liveUrl}

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, ArrowUpRight } from "lucide-react";
 import GlassSurface from "@/components/ui/GlassSurface";
@@ -18,6 +18,20 @@ const NAV_CHANNELS = [
 export default function Navbar() {
   const [activeSection, setActiveSection] = useState("hero");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+
+  // Escape closes the mobile drawer and hands focus back to its trigger.
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setMobileMenuOpen(false);
+        menuButtonRef.current?.focus();
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [mobileMenuOpen]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -41,7 +55,7 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+  const scrollToSection = (e: React.MouseEvent<HTMLElement>, href: string) => {
     e.preventDefault();
     setMobileMenuOpen(false);
     const targetId = href.replace("#", "");
@@ -70,7 +84,7 @@ export default function Navbar() {
             <span>NODE: AMOY TESTNET</span>
           </div>
           <div className="flex items-center gap-4">
-            <span>VIT CHENNAI &bull; CSE '29</span>
+            <span>VIT CHENNAI &bull; CSE &apos;29</span>
             <span>&bull;</span>
             <span>COORDS: 12.8406° N, 80.1534° E</span>
           </div>
@@ -135,7 +149,7 @@ export default function Navbar() {
                 href="#contact"
                 variant="primary"
                 isPrimary={true}
-                onClick={(e) => scrollToSection(e as any, "#contact")}
+                onClick={(e) => scrollToSection(e, "#contact")}
                 className="px-4 py-2 font-mono text-xs font-bold uppercase tracking-wider"
               >
                 <span>TRANSMIT DISPATCH</span>
@@ -145,9 +159,12 @@ export default function Navbar() {
 
             {/* Mobile Menu Button */}
             <button
+              ref={menuButtonRef}
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="md:hidden p-2 border border-seam bg-surface text-ink hover:border-accent transition-colors"
-              aria-label="Toggle menu"
+              aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+              aria-expanded={mobileMenuOpen}
+              aria-controls="mobile-menu-drawer"
             >
               {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
@@ -159,6 +176,7 @@ export default function Navbar() {
       <AnimatePresence>
         {mobileMenuOpen && (
           <motion.div
+            id="mobile-menu-drawer"
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
@@ -184,7 +202,7 @@ export default function Navbar() {
               href="#contact"
               variant="primary"
               isPrimary={true}
-              onClick={(e) => scrollToSection(e as any, "#contact")}
+              onClick={(e) => scrollToSection(e, "#contact")}
               className="w-full text-center py-3 font-mono text-xs font-bold uppercase"
             >
               INITIATE DISPATCH

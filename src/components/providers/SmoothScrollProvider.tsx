@@ -1,22 +1,27 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect } from "react";
 import Lenis from "lenis";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { setLenis } from "@/lib/lenis";
 
+/**
+ * Lenis smooth scrolling, driven by a plain requestAnimationFrame loop.
+ *
+ * Previously this pulled in GSAP + ScrollTrigger purely to borrow its ticker —
+ * ~70KB of JavaScript for a rAF callback that is five lines long.
+ * Visitors who ask for reduced motion get the browser's native scrolling.
+ */
 export default function SmoothScrollProvider({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const lenisRef = useRef<Lenis | null>(null);
-
   useEffect(() => {
-    // Register GSAP ScrollTrigger
-    if (typeof window !== "undefined") {
-      gsap.registerPlugin(ScrollTrigger);
-    }
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
+
+    if (prefersReducedMotion) return;
 
     const lenis = new Lenis({
       duration: 1.2,
@@ -29,22 +34,18 @@ export default function SmoothScrollProvider({
       infinite: false,
     });
 
-    lenisRef.current = lenis;
-
-    // Connect Lenis to GSAP ScrollTrigger
-    lenis.on("scroll", ScrollTrigger.update);
-
-    const updateLenis = (time: number) => {
-      lenis.raf(time * 1000);
+    let frameId = 0;
+    const raf = (time: number) => {
+      lenis.raf(time);
+      frameId = requestAnimationFrame(raf);
     };
-
-    gsap.ticker.add(updateLenis);
-    gsap.ticker.lagSmoothing(0);
+    frameId = requestAnimationFrame(raf);
+    setLenis(lenis);
 
     return () => {
-      gsap.ticker.remove(updateLenis);
+      cancelAnimationFrame(frameId);
+      setLenis(null);
       lenis.destroy();
-      ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
     };
   }, []);
 

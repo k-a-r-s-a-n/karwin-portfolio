@@ -12,6 +12,10 @@ export default function HeroModel() {
     const container = containerRef.current;
     if (!canvas || !container) return;
 
+    const reducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
+
     // Scene & Camera
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(
@@ -194,7 +198,44 @@ export default function HeroModel() {
 
     let containerRect = container.getBoundingClientRect();
 
+    // ─── Drag-to-inspect ───
+    // The viewport chrome promises "DRAG TO INSPECT", so the model actually
+    // rotates with the pointer. Dragging adds an offset on top of the parallax
+    // target; parallax keeps working when the pointer moves without a drag.
+    let dragOffsetY = 0;
+    let dragOffsetX = 0;
+    let dragging = false;
+    let lastPointerX = 0;
+    let lastPointerY = 0;
+
+    const onPointerDown = (e: PointerEvent) => {
+      dragging = true;
+      lastPointerX = e.clientX;
+      lastPointerY = e.clientY;
+      canvas.setPointerCapture(e.pointerId);
+    };
+
+    const onPointerMoveDrag = (e: PointerEvent) => {
+      if (!dragging) return;
+      const dx = e.clientX - lastPointerX;
+      const dy = e.clientY - lastPointerY;
+      lastPointerX = e.clientX;
+      lastPointerY = e.clientY;
+      dragOffsetY += dx * 0.008;
+      dragOffsetX += dy * 0.005;
+      // Clamp so the assembly can't be flipped upside down.
+      dragOffsetX = Math.max(-0.6, Math.min(0.6, dragOffsetX));
+    };
+
+    const onPointerUp = (e: PointerEvent) => {
+      dragging = false;
+      if (canvas.hasPointerCapture(e.pointerId)) {
+        canvas.releasePointerCapture(e.pointerId);
+      }
+    };
+
     const onMouseMove = (e: MouseEvent) => {
+      if (dragging) return;
       const nx = (e.clientX - containerRect.left) / (containerRect.width || 1) - 0.5;
       const ny = (e.clientY - containerRect.top) / (containerRect.height || 1) - 0.5;
 
@@ -212,6 +253,10 @@ export default function HeroModel() {
 
     window.addEventListener("mousemove", onMouseMove, { passive: true });
     window.addEventListener("scroll", onScroll, { passive: true });
+    canvas.addEventListener("pointerdown", onPointerDown);
+    canvas.addEventListener("pointermove", onPointerMoveDrag);
+    canvas.addEventListener("pointerup", onPointerUp);
+    canvas.addEventListener("pointercancel", onPointerUp);
 
     // Pause animation when model is off-screen
     let isVisible = true;
@@ -233,17 +278,12 @@ export default function HeroModel() {
 
     let animationFrameId: number;
 
-    const animate = () => {
-      animationFrameId = requestAnimationFrame(animate);
-
-      // Skip rendering when scrolled out of view
-      if (!isVisible) return;
-
+    const renderFrame = () => {
       const delta = Math.min(clock.getDelta(), 0.1);
 
       // Framerate-independent smooth parallax damping (eliminates 60Hz vs 144Hz shake)
-      currentRotY = THREE.MathUtils.damp(currentRotY, targetRotY, 6, delta);
-      currentRotX = THREE.MathUtils.damp(currentRotX, targetRotX, 6, delta);
+      currentRotY = THREE.MathUtils.damp(currentRotY, targetRotY + dragOffsetY, 6, delta);
+      currentRotX = THREE.MathUtils.damp(currentRotX, targetRotX + dragOffsetX, 6, delta);
       rootAssembly.rotation.y = currentRotY;
       rootAssembly.rotation.x = currentRotX;
 
@@ -267,6 +307,49 @@ export default function HeroModel() {
       renderer.render(scene, camera);
     };
 
+    if (reducedMotion) {
+      // Static exploded view: one settled frame, no loop, no listeners driving
+      // motion. The model still disassembles with scroll position changes,
+      // re-rendered on demand rather than per-frame.
+      currentExplode = targetExplode = 0;
+      renderFrame();
+
+      const renderStatic = () => {
+        currentExplode = THREE.MathUtils.damp(currentExplode, targetExplode, 8, 1 / 30);
+        basePcbGroup.position.y = -currentExplode * 0.85;
+        basePcbGroup.position.z = -currentExplode * 0.4;
+        topArrayGroup.position.y = currentExplode * 1.4;
+        topArrayGroup.position.z = currentExplode * 0.6;
+        renderer.render(scene, camera);
+      };
+      const onStaticScroll = () => {
+        onScroll();
+        renderStatic();
+      };
+      window.addEventListener("scroll", onStaticScroll, { passive: true });
+      const staticResize = () => {
+        handleResize();
+        renderStatic();
+      };
+      window.addEventListener("resize", staticResize);
+
+      return () => {
+        observer.disconnect();
+        window.removeEventListener("scroll", onStaticScroll);
+        window.removeEventListener("resize", staticResize);
+        disposeAssets();
+      };
+    }
+
+    const animate = () => {
+      animationFrameId = requestAnimationFrame(animate);
+
+      // Skip rendering when scrolled out of view
+      if (!isVisible) return;
+
+      renderFrame();
+    };
+
     animate();
 
     return () => {
@@ -275,7 +358,14 @@ export default function HeroModel() {
       window.removeEventListener("mousemove", onMouseMove);
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", handleResize);
+      canvas.removeEventListener("pointerdown", onPointerDown);
+      canvas.removeEventListener("pointermove", onPointerMoveDrag);
+      canvas.removeEventListener("pointerup", onPointerUp);
+      canvas.removeEventListener("pointercancel", onPointerUp);
+      disposeAssets();
+    };
 
+    function disposeAssets() {
       renderer.dispose();
       boardGeom.dispose();
       standoffGeom.dispose();
@@ -291,7 +381,7 @@ export default function HeroModel() {
       darkChipMaterial.dispose();
       safetyOrangeMaterial.dispose();
       goldPinMaterial.dispose();
-    };
+    }
   }, []);
 
   return (

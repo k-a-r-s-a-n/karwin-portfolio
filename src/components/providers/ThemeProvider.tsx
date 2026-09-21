@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useCallback, useContext, useSyncExternalStore } from "react";
 
 type Theme = "light" | "dark";
 
@@ -14,52 +14,73 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 const THEME_STORAGE_KEY = "karwin-theme";
 
-export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>("light");
-  const [mounted, setMounted] = useState(false);
+/**
+ * The `dark` class on <html> is the single source of truth. It is written before
+ * first paint by the inline script in layout.tsx, mutated here, and read back
+ * through useSyncExternalStore — which keeps React in sync without the
+ * render-cascading `setState` inside an effect.
+ */
+const listeners = new Set<() => void>();
 
-  useEffect(() => {
-    // Read from localStorage or system preference on mount
-    try {
-      const stored = localStorage.getItem(THEME_STORAGE_KEY) as Theme | null;
-      if (stored === "dark" || stored === "light") {
-        setThemeState(stored);
-        applyTheme(stored);
-      } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-        setThemeState("dark");
-        applyTheme("dark");
-      } else {
-        applyTheme("light");
-      }
-    } catch {
-      applyTheme("light");
-    }
-    setMounted(true);
-  }, []);
+function emitChange() {
+  listeners.forEach((listener) => listener());
+}
 
-  const applyTheme = (newTheme: Theme) => {
-    const root = document.documentElement;
-    if (newTheme === "dark") {
-      root.classList.add("dark");
-    } else {
-      root.classList.remove("dark");
-    }
+function subscribe(listener: () => void) {
+  listeners.add(listener);
+
+  const media = window.matchMedia("(prefers-color-scheme: dark)");
+  const handleSystemChange = () => {
+    // Only follow the OS when the visitor has not made an explicit choice.
+    if (!getStoredTheme()) emitChange();
+  };
+  const handleStorage = (event: StorageEvent) => {
+    if (event.key === THEME_STORAGE_KEY) emitChange();
   };
 
-  const setTheme = (newTheme: Theme) => {
-    setThemeState(newTheme);
-    applyTheme(newTheme);
+  media.addEventListener("change", handleSystemChange);
+  window.addEventListener("storage", handleStorage);
+
+  return () => {
+    listeners.delete(listener);
+    media.removeEventListener("change", handleSystemChange);
+    window.removeEventListener("storage", handleStorage);
+  };
+}
+
+function getStoredTheme(): Theme | null {
+  try {
+    const stored = localStorage.getItem(THEME_STORAGE_KEY);
+    return stored === "dark" || stored === "light" ? stored : null;
+  } catch {
+    return null;
+  }
+}
+
+function getSnapshot(): Theme {
+  return document.documentElement.classList.contains("dark") ? "dark" : "light";
+}
+
+function getServerSnapshot(): Theme {
+  return "light";
+}
+
+export function ThemeProvider({ children }: { children: React.ReactNode }) {
+  const theme = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+
+  const setTheme = useCallback((newTheme: Theme) => {
+    document.documentElement.classList.toggle("dark", newTheme === "dark");
     try {
       localStorage.setItem(THEME_STORAGE_KEY, newTheme);
     } catch {
-      // ignore storage errors
+      // Storage can be unavailable (private mode, blocked cookies) — theme still applies.
     }
-  };
+    emitChange();
+  }, []);
 
-  const toggleTheme = () => {
-    const next = theme === "light" ? "dark" : "light";
-    setTheme(next);
-  };
+  const toggleTheme = useCallback(() => {
+    setTheme(getSnapshot() === "dark" ? "light" : "dark");
+  }, [setTheme]);
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme, setTheme }}>

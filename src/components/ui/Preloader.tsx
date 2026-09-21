@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const CALIBRATION_LOGS = [
@@ -11,40 +11,61 @@ const CALIBRATION_LOGS = [
   "[SYS] ALL CONTROL REGISTERS OPERATIONAL",
 ];
 
+const STEP_MS = 260;
+const BOOT_KEY = "karwin-booted";
+
 export default function Preloader() {
   const [stepIndex, setStepIndex] = useState(0);
   const [isComplete, setIsComplete] = useState(false);
 
   useEffect(() => {
+    // The inline bootstrap script in layout.tsx decides, before first paint,
+    // whether this overlay should run at all (repeat visit in the same session,
+    // or the visitor asked for reduced motion). Respect that decision — but
+    // apply it in a microtask so the effect body stays synchronous-free.
+    if (document.documentElement.classList.contains("skip-boot")) {
+      queueMicrotask(() => setIsComplete(true));
+      return;
+    }
+
+    document.documentElement.classList.add("is-booting");
+
     const interval = setInterval(() => {
-      setStepIndex((prev) => {
-        if (prev < CALIBRATION_LOGS.length - 1) {
-          return prev + 1;
-        }
-        return prev;
-      });
-    }, 650);
+      setStepIndex((prev) => (prev < CALIBRATION_LOGS.length - 1 ? prev + 1 : prev));
+    }, STEP_MS);
 
     const timer = setTimeout(() => {
+      try {
+        sessionStorage.setItem(BOOT_KEY, "1");
+      } catch {
+        // Non-fatal: worst case the boot sequence replays on the next reload.
+      }
+      document.documentElement.classList.remove("is-booting");
       setIsComplete(true);
-    }, 3400);
+    }, STEP_MS * CALIBRATION_LOGS.length + 200);
 
     return () => {
       clearInterval(interval);
       clearTimeout(timer);
+      document.documentElement.classList.remove("is-booting");
     };
   }, []);
+
+  const progress = Math.round(((stepIndex + 1) / CALIBRATION_LOGS.length) * 100);
 
   return (
     <AnimatePresence>
       {!isComplete && (
         <motion.div
+          data-boot-overlay
           initial={{ opacity: 1 }}
           exit={{
             clipPath: "inset(50% 0 50% 0)",
             opacity: 0,
             transition: { duration: 0.65, ease: [0.76, 0, 0.24, 1] },
           }}
+          role="status"
+          aria-label="System boot diagnostics"
           className="fixed inset-0 z-[100] flex flex-col justify-between p-6 sm:p-12 bg-chassis text-ink select-none pointer-events-auto panel-grid overflow-hidden border-8 border-panel-recess"
         >
           {/* Top Chassis Telemetry Bar */}
@@ -58,7 +79,7 @@ export default function Preloader() {
             <div className="flex items-center gap-4 text-ink-muted text-[11px]">
               <span>UNIT: KARWIN-CNC-01</span>
               <span>&bull;</span>
-              <span>VIT CHENNAI '29</span>
+              <span>VIT CHENNAI &apos;29</span>
             </div>
           </div>
 
@@ -66,8 +87,7 @@ export default function Preloader() {
           <div className="flex flex-col items-center justify-center my-auto">
             {/* Precision Coordinate Reticle */}
             <div className="relative w-48 h-48 sm:w-56 sm:h-56 flex items-center justify-center border border-seam bg-surface p-6 shadow-xs has-rivets">
-              <svg viewBox="0 0 100 100" className="w-full h-full" fill="none">
-                {/* Millimeter grid ticks */}
+              <svg viewBox="0 0 100 100" className="w-full h-full" fill="none" aria-hidden="true">
                 <circle
                   cx="50"
                   cy="50"
@@ -76,26 +96,12 @@ export default function Preloader() {
                   strokeWidth="1"
                   strokeDasharray="2 3"
                 />
-                <circle
-                  cx="50"
-                  cy="50"
-                  r="28"
-                  stroke="var(--seam)"
-                  strokeWidth="0.75"
-                />
-                <circle
-                  cx="50"
-                  cy="50"
-                  r="14"
-                  stroke="var(--safety-orange)"
-                  strokeWidth="1"
-                />
+                <circle cx="50" cy="50" r="28" stroke="var(--seam)" strokeWidth="0.75" />
+                <circle cx="50" cy="50" r="14" stroke="var(--safety-orange)" strokeWidth="1" />
 
-                {/* Coordinate Crosshairs */}
                 <line x1="50" y1="4" x2="50" y2="96" stroke="var(--ink)" strokeWidth="0.75" />
                 <line x1="4" y1="50" x2="96" y2="50" stroke="var(--ink)" strokeWidth="0.75" />
 
-                {/* Rotating alignment bracket */}
                 <motion.rect
                   x="36"
                   y="36"
@@ -108,7 +114,6 @@ export default function Preloader() {
                   style={{ originX: "50px", originY: "50px" }}
                 />
 
-                {/* Center ruby stylus point */}
                 <circle cx="50" cy="50" r="3" fill="var(--safety-orange)" />
               </svg>
 
@@ -132,6 +137,14 @@ export default function Preloader() {
               >
                 &gt; {CALIBRATION_LOGS[stepIndex]}
               </motion.div>
+
+              {/* Boot progress rail */}
+              <div className="mt-3 h-1 w-full bg-panel-recess border border-seam" aria-hidden="true">
+                <div
+                  className="h-full bg-accent transition-[width] duration-200 ease-out"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
             </div>
           </div>
 

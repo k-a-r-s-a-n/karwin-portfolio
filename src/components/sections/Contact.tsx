@@ -30,10 +30,30 @@ export default function Contact() {
     return () => clearInterval(timer);
   }, []);
 
-  const copyEmail = () => {
-    navigator.clipboard.writeText(profileData.email);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const copyEmail = async () => {
+    try {
+      await navigator.clipboard.writeText(profileData.email);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Clipboard permission denied or insecure context — fall back to the
+      // legacy path so the button still does something useful.
+      const textarea = document.createElement("textarea");
+      textarea.value = profileData.email;
+      textarea.setAttribute("readonly", "");
+      textarea.style.position = "fixed";
+      textarea.style.opacity = "0";
+      document.body.appendChild(textarea);
+      textarea.select();
+      try {
+        document.execCommand("copy");
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      } catch {
+        window.location.href = `mailto:${profileData.email}`;
+      }
+      document.body.removeChild(textarea);
+    }
   };
 
   return (
@@ -100,7 +120,7 @@ export default function Contact() {
                 </div>
 
                 {/* Push Action Actuators */}
-                <div className="flex flex-wrap gap-4">
+                <div className="flex flex-wrap gap-4" aria-live="polite">
                   <InteractiveButton
                     onClick={copyEmail}
                     variant="primary"
@@ -144,7 +164,7 @@ export default function Contact() {
             <div className="lg:col-span-5 p-6 sm:p-10 flex flex-col justify-between bg-panel-recess/60">
               <div>
                 <div className="font-mono text-xs text-ink-muted uppercase mb-4">
-                  // AUXILIARY REGISTRIES &amp; BUS NODES
+                  {"//"} AUXILIARY REGISTRIES &amp; BUS NODES
                 </div>
 
                 <div className="space-y-4 mb-8">

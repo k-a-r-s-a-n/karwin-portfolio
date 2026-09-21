@@ -24,7 +24,7 @@ export default function Footer() {
                 {profileData.name.toUpperCase()}
               </span>
               <span className="text-ink-muted text-xs font-mono ml-2">
-                // VIT CHENNAI &bull; CSE '29
+                {"//"} VIT CHENNAI &bull; CSE &apos;29
               </span>
             </div>
           </div>
@@ -54,7 +54,7 @@ export default function Footer() {
             &copy; {new Date().getFullYear()} {profileData.name.toUpperCase()} &bull; ALL HARDWARE REGISTERS &amp; CODEBASES CERTIFIED
           </div>
           <div className="text-[11px] italic text-ink/70">
-            "{profileData.quote}"
+            &ldquo;{profileData.quote}&rdquo;
           </div>
         </div>
       </div>

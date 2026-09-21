@@ -116,11 +116,13 @@ export default function InteractiveButton({
   }
 
   if (as === "a") {
+    // New tabs should never get `window.opener` unless explicitly overridden.
+    const resolvedRel = target === "_blank" ? rel ?? "noopener noreferrer" : rel;
     return (
       <a
         href={href}
         target={target}
-        rel={rel}
+        rel={resolvedRel}
         onClick={onClick}
         aria-label={ariaLabel}
         className="inline-block"

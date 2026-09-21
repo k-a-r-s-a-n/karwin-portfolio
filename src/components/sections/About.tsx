@@ -2,7 +2,7 @@
 
 import React from "react";
 import profileData from "@/data/profile.json";
-import Reveal, { RevealItem } from "@/components/ui/Reveal";
+import Reveal from "@/components/ui/Reveal";
 import GlassSurface from "@/components/ui/GlassSurface";
 
 const ARCHITECTURE_STEPS = [
@@ -39,7 +39,7 @@ export default function About() {
         <GlassSurface className="p-4 sm:px-6 flex flex-wrap items-center justify-between gap-4 text-xs font-mono mb-6 border border-seam">
           <div className="flex items-center gap-3">
             <span className="badge-orange">CH-01</span>
-            <span className="font-bold text-ink">SUBSYSTEM OPERATOR // DOSSIER</span>
+            <span className="font-bold text-ink">SUBSYSTEM OPERATOR {"//"} DOSSIER</span>
           </div>
           <span className="text-ink-muted">SPEC ID: KARWIN-SPEC-2025</span>
         </GlassSurface>
@@ -50,7 +50,7 @@ export default function About() {
           <div className="lg:col-span-7 p-6 sm:p-10 border-b lg:border-b-0 lg:border-r border-seam flex flex-col justify-between has-rivets bg-surface">
             <div>
               <div className="text-xs font-mono text-accent font-bold uppercase mb-2">
-                // PROFILE &amp; PHILOSOPHY
+                {"//"} PROFILE &amp; PHILOSOPHY
               </div>
               <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-ink uppercase mb-6">
                 Engineering with <br />
@@ -109,7 +109,7 @@ export default function About() {
                     EQUIPMENT SPECIFICATION PLATE
                   </div>
                   <div className="font-mono text-base font-bold text-ink">
-                    OPERATOR // RATING SHEET
+                    OPERATOR {"//"} RATING SHEET
                   </div>
                 </div>
                 <span className="badge-orange">GRADE A</span>

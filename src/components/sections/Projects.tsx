@@ -12,6 +12,8 @@ import InteractiveButton from "@/components/ui/InteractiveButton";
 
 const projects = rawProjects as unknown as ProjectData[];
 
+const PROJECT_COUNT_LABEL = `${String(projects.length).padStart(2, "0")} ACTIVE CASSETTES`;
+
 export default function Projects() {
   const [selectedProject, setSelectedProject] = useState<ProjectData | null>(null);
 
@@ -21,6 +23,8 @@ export default function Projects() {
       className="py-20 px-4 sm:px-8 max-w-7xl mx-auto"
     >
       <Reveal stagger={0.08}>
+        <h2 className="sr-only">Projects</h2>
+
         {/* Section Header Bar */}
         <GlassSurface className="p-4 sm:px-6 flex flex-wrap items-center justify-between gap-4 text-xs font-mono mb-8 border border-seam">
           <div className="flex items-center gap-3">
@@ -28,7 +32,7 @@ export default function Projects() {
             <span className="font-bold text-ink">HARDWARE TESTBENCHES &amp; WORK MODULES</span>
           </div>
           <div className="text-ink-muted text-[11px]">
-            <span>INDEX: 04 ACTIVE CASSETTES</span>
+            <span>INDEX: {PROJECT_COUNT_LABEL}</span>
             <span className="mx-2">&bull;</span>
             <span className="text-safety-green font-semibold">ALL COMPLIANT</span>
           </div>
@@ -90,7 +94,7 @@ export default function Projects() {
                   </h3>
 
                   <div className="font-mono text-xs text-ink-muted mb-4 font-semibold">
-                    // {project.subtitle}
+                    {"//"} {project.subtitle}
                   </div>
 
                   <p className="text-sm text-ink/75 leading-relaxed font-sans mb-6">

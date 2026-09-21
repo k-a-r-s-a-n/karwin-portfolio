@@ -235,13 +235,139 @@ html.lenis body {
   animation: shimmer-sweep 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* ─── Desktop Custom Cursor suppression ─── */
-@media (hover: hover) and (pointer: fine) {
-  body.has-custom-cursor,
-  body.has-custom-cursor a,
-  body.has-custom-cursor button,
-  body.has-custom-cursor input,
-  body.has-custom-cursor select {
-    cursor: none !important;
+/* ─── Skip Link (keyboard navigation) ─── */
+.skip-link {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  z-index: 200;
+  padding: 10px 16px;
+  background-color: var(--ink);
+  color: var(--surface);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  transform: translateY(-200%);
+  transition: transform 150ms ease;
+}
+
+.skip-link:focus-visible {
+  transform: translateY(0);
+}
+
+/* ─── Boot overlay state ───
+   While the preloader runs, lock scrolling and hide content from the
+   accessibility tree so keyboard focus cannot land behind the overlay. */
+html.is-booting {
+  overflow: hidden;
+}
+
+html.is-booting main,
+html.is-booting header,
+html.is-booting footer {
+  visibility: hidden;
+}
+
+/* ─── Keyboard Focus ───
+   One consistent, high-contrast indicator everywhere (2px offset keeps it
+   visible against both panel and recess backgrounds). */
+a:focus-visible,
+button:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--safety-orange);
+  outline-offset: 2px;
+}
+
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--safety-orange);
+  outline-offset: 0;
+}
+
+/* ─── Custom Cursor ───
+   `cursor-active` is set by JS only on fine-pointer devices without reduced
+   motion. The native cursor is hidden so the machined dot/ring replaces it;
+   text fields keep the I-beam for precise caret placement. */
+html.cursor-active body,
+html.cursor-active a,
+html.cursor-active button,
+html.cursor-active label {
+  cursor: none;
+}
+
+html.cursor-active input,
+html.cursor-active textarea,
+html.cursor-active select {
+  cursor: text;
+}
+
+.cursor-dot,
+.cursor-ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.cursor-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background-color: var(--safety-orange);
+  box-shadow: 0 0 8px 0 rgba(255, 51, 34, 0.55);
+}
+
+.cursor-ring {
+  width: 30px;
+  height: 30px;
+  border-radius: 9999px;
+  border: 1.5px solid var(--ink-muted);
+  transition: width 180ms ease, height 180ms ease, border-color 180ms ease,
+    background-color 180ms ease;
+}
+
+/* Ring grows and fills when hovering anything interactive. `interactive` is
+   toggled by the cursor script via pointerover/out (event delegation). */
+html.cursor-interactive .cursor-ring {
+  width: 44px;
+  height: 44px;
+  border-color: var(--safety-orange);
+  background-color: color-mix(in srgb, var(--safety-orange) 12%, transparent);
+}
+
+/* The dot reads on dark panels via a light core in dark mode */
+html.dark .cursor-dot {
+  background-color: var(--safety-orange);
+  box-shadow: 0 0 10px 1px rgba(255, 77, 54, 0.7);
+}
+
+/* ─── Reduced Motion ───
+   Kill looping/animated CSS effects globally; component-level JS animation is
+   handled individually (Framer's useReducedMotion, Lenis and cursor opt-out). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .cursor-dot,
+  .cursor-ring {
+    display: none;
+  }
+
+  html.cursor-active body,
+  html.cursor-active a,
+  html.cursor-active button,
+  html.cursor-active label {
+    cursor: auto;
   }
 }

@@ -1,13 +1,30 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import dynamic from "next/dynamic";
 import { ArrowDown, ArrowUpRight, Cpu } from "lucide-react";
 import { GithubIcon } from "@/components/ui/Icons";
-import HeroModel from "@/components/3d/HeroModel";
 import profileData from "@/data/profile.json";
+import rawProjects from "@/data/projects.json";
 import Reveal from "@/components/ui/Reveal";
 import GlassSurface from "@/components/ui/GlassSurface";
 import InteractiveButton from "@/components/ui/InteractiveButton";
+
+// Three.js (~150KB min) stays out of the first-paint bundle; the viewport
+// boots when the hero settles in. Skeleton matches the panel recess.
+const HeroModel = dynamic(() => import("@/components/3d/HeroModel"), {
+  ssr: false,
+  loading: () => (
+    <div
+      aria-hidden="true"
+      className="w-full h-[380px] sm:h-[460px] lg:h-[540px] flex items-center justify-center panel-grid"
+    >
+      <div className="w-20 h-20 border-2 border-seam border-t-accent animate-spin" />
+    </div>
+  ),
+});
+
+const PROJECT_COUNT = rawProjects.length;
 
 export default function Hero() {
   const [coords, setCoords] = useState({ x: "120.44", y: "084.12", z: "000.00" });
@@ -89,7 +106,7 @@ export default function Hero() {
                 </div>
                 <div className="px-4 py-2 flex justify-between items-center">
                   <span className="text-ink-muted">ACADEMIC UNIT</span>
-                  <span className="font-semibold text-ink">VIT CHENNAI &bull; B.TECH CSE '29</span>
+                  <span className="font-semibold text-ink">VIT CHENNAI &bull; B.TECH CSE &apos;29</span>
                 </div>
                 <div className="px-4 py-2 flex justify-between items-center">
                   <span className="text-ink-muted">PRIMARY STACK</span>
@@ -107,7 +124,7 @@ export default function Hero() {
 
               {/* Executive Field Summary */}
               <p className="mt-6 text-sm sm:text-base text-ink/80 leading-relaxed font-sans">
-                Designing immutable distributed ledgers, zero-latency geospatial infrastructure, and agentic LLM developer tooling. Built for deterministic execution and high fault tolerance.
+                Designing tamper-proof ledgers, geospatial mapping tools, and agentic LLM workflows — engineered for reliability and shipped in the open.
               </p>
             </div>
 
@@ -121,7 +138,7 @@ export default function Hero() {
                 distort={true}
                 className="px-6 py-3.5 font-mono text-xs font-bold uppercase tracking-wider"
               >
-                <span>INSPECT WORK MODULES [04]</span>
+                <span>INSPECT WORK MODULES [{String(PROJECT_COUNT).padStart(2, "0")}]</span>
                 <ArrowDown size={14} />
               </InteractiveButton>
 

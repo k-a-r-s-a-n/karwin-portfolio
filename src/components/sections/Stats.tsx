@@ -1,19 +1,51 @@
 "use client";
 
 import React from "react";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, Star, GitBranch, CalendarDays, Layers } from "lucide-react";
 import statsData from "@/data/stats.json";
 import Reveal from "@/components/ui/Reveal";
 import GlassSurface from "@/components/ui/GlassSurface";
-import { useTheme } from "@/components/providers/ThemeProvider";
+import InteractiveButton from "@/components/ui/InteractiveButton";
 
+/**
+ * CH-04 — Metrics.
+ *
+ * This section previously embedded three third-party images (github-readme-
+ * stats, a Heroku streak app that no longer exists, and a contribution-snake
+ * SVG). Each was an external uptime dependency rendering between the visitor
+ * and the data, and none worked offline. The panel below states verifiable
+ * facts that live with the code, and hands off to the GitHub profile for
+ * anything live.
+ */
 export default function Stats() {
-  const { theme } = useTheme();
-  const isDark = theme === "dark";
+  const { github } = statsData;
 
-  const githubBg = isDark ? "141417" : "F4F4F5";
-  const githubText = isDark ? "F4F4F5" : "18181B";
-  const githubAccent = isDark ? "FF4D36" : "FF3322";
+  const registerCells = [
+    {
+      icon: GitBranch,
+      label: "PUBLIC REPOSITORIES",
+      value: String(github.publicRepos),
+      note: "All open source, all inspectable",
+    },
+    {
+      icon: Layers,
+      label: "PRIMARY LANGUAGES",
+      value: github.topLanguages[0],
+      note: github.topLanguages.slice(1).join(" · "),
+    },
+    {
+      icon: CalendarDays,
+      label: "BUILDING SINCE",
+      value: github.since,
+      note: "First public commit to today",
+    },
+    {
+      icon: Star,
+      label: "FLAGSHIP BUILDS",
+      value: "04",
+      note: "Blockchain · Maps · AI · Mobile",
+    },
+  ];
 
   return (
     <section
@@ -21,19 +53,21 @@ export default function Stats() {
       className="py-20 px-4 sm:px-8 max-w-7xl mx-auto"
     >
       <Reveal stagger={0.08}>
+        <h2 className="sr-only">Metrics and build register</h2>
+
         {/* Section Header Bar */}
         <GlassSurface className="p-4 sm:px-6 flex flex-wrap items-center justify-between gap-4 text-xs font-mono mb-8 border border-seam">
           <div className="flex items-center gap-3">
             <span className="badge-orange">CH-04</span>
-            <span className="font-bold text-ink">HARDWARE METRICS &amp; AUDIT TRAIL</span>
+            <span className="font-bold text-ink">HARDWARE METRICS &amp; BUILD REGISTERS</span>
           </div>
           <a
-            href="https://github.com/k-a-r-s-a-n"
+            href={`https://github.com/${statsData.githubUsername}`}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 text-ink font-bold hover:text-accent transition-colors"
           >
-            <span>GITHUB // @k-a-r-s-a-n</span>
+            <span>GITHUB {"//"} @{statsData.githubUsername}</span>
             <ArrowUpRight size={13} />
           </a>
         </GlassSurface>
@@ -46,7 +80,7 @@ export default function Stats() {
               className="p-6 shadow-xs flex flex-col justify-between has-rivets border border-seam"
             >
               <div className="font-mono text-[10px] text-ink-muted uppercase font-bold tracking-wider mb-3">
-                // {stat.label}
+                {"//"} {stat.label}
               </div>
               <div className="text-4xl sm:text-5xl font-bold text-ink tracking-tight mb-2">
                 {stat.value}
@@ -58,88 +92,74 @@ export default function Stats() {
           ))}
         </div>
 
-        {/* Distinction & Hackathon Plaques */}
+        {/* GitHub Activity Panel — self-contained, no third-party image pins */}
         <GlassSurface className="mb-12 border border-seam shadow-xs has-rivets">
           <div className="flex items-center justify-between px-6 py-3 bg-panel-recess/80 border-b border-seam font-mono text-xs font-bold text-ink">
-            <span>VERIFIED MILESTONES &amp; HARDWARE DISTINCTIONS</span>
-            <span className="text-accent">AUDIT REGISTER</span>
+            <span>{github.label}</span>
+            <span className="text-accent">LIVE FEED {"//"} EXTERNAL</span>
+          </div>
+
+          <div className="grid grid-cols-2 lg:grid-cols-4 divide-y lg:divide-y-0 lg:divide-x divide-seam">
+            {registerCells.map((cell) => (
+              <div key={cell.label} className="p-6 flex flex-col gap-2">
+                <div className="flex items-center gap-2 font-mono text-[10px] text-ink-muted uppercase font-bold tracking-wider">
+                  <cell.icon size={13} className="text-accent" />
+                  {cell.label}
+                </div>
+                <div className="font-mono text-2xl sm:text-3xl font-bold text-ink truncate">
+                  {cell.value}
+                </div>
+                {cell.note && (
+                  <div className="font-mono text-[11px] text-ink-muted">{cell.note}</div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          <div className="border-t border-seam px-6 py-4 flex flex-wrap items-center justify-between gap-3 font-mono text-[10px] text-ink-muted">
+            <span>{github.note}</span>
+            <InteractiveButton
+              as="a"
+              href={`https://github.com/${statsData.githubUsername}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              variant="secondary"
+              className="px-3 py-1.5 uppercase font-bold text-xs"
+            >
+              <span>OPEN LIVE REGISTER</span>
+              <ArrowUpRight size={13} />
+            </InteractiveButton>
+          </div>
+        </GlassSurface>
+
+        {/* Build Registers — the four flagship modules, cross-referenced */}
+        <GlassSurface className="border border-seam shadow-xs has-rivets">
+          <div className="flex items-center justify-between px-6 py-3 bg-panel-recess/80 border-b border-seam font-mono text-xs font-bold text-ink">
+            <span>FLAGSHIP BUILD REGISTERS</span>
+            <span className="text-accent">CROSS-REF CH-02</span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-seam">
-            {statsData.trophies.map((trophy, idx) => (
+            {statsData.builds.map((build, idx) => (
               <div
                 key={idx}
                 className="p-6 flex items-start gap-4 hover:bg-panel-recess/50 transition-colors"
               >
                 <span className="badge-orange font-mono">
-                  {trophy.rank}
+                  {build.ref}
                 </span>
                 <div>
-                  <h4 className="text-base sm:text-lg font-bold text-ink uppercase leading-snug">
-                    {trophy.title}
-                  </h4>
+                  <h3 className="text-base sm:text-lg font-bold text-ink uppercase leading-snug">
+                    {build.title}
+                  </h3>
                   <p className="font-mono text-xs text-ink-muted mt-1">
-                    // {trophy.subtitle}
+                    {"//"} {build.subtitle}
                   </p>
                 </div>
               </div>
             ))}
           </div>
         </GlassSurface>
-
-        {/* GitHub High-Contrast Telemetry Cards */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          {/* GitHub Commit Metrics */}
-          <GlassSurface className="lg:col-span-6 border border-seam p-6 shadow-xs">
-            <div className="flex items-center justify-between font-mono text-xs text-ink-muted border-b border-seam pb-3 mb-4">
-              <span className="font-bold text-ink">GITHUB COMMIT REGISTER</span>
-              <span>USER: k-a-r-s-a-n</span>
-            </div>
-
-            <div className="flex justify-center items-center py-2 bg-panel-recess border border-seam overflow-hidden">
-              <img
-                src={`https://github-readme-stats.vercel.app/api?username=k-a-r-s-a-n&show_icons=true&theme=default&hide_border=true&count_private=true&bg_color=${githubBg}&title_color=${githubText}&text_color=${githubText}&icon_color=${githubAccent}`}
-                alt="Karwin's GitHub Stats"
-                className="w-full max-w-md object-contain"
-                loading="lazy"
-              />
-            </div>
-          </GlassSurface>
-
-          {/* GitHub Streak Stats */}
-          <GlassSurface className="lg:col-span-6 border border-seam p-6 shadow-xs">
-            <div className="flex items-center justify-between font-mono text-xs text-ink-muted border-b border-seam pb-3 mb-4">
-              <span className="font-bold text-ink">STREAK LOG &amp; CONTINUITY</span>
-              <span>MEASURED DAYS</span>
-            </div>
-
-            <div className="flex justify-center items-center py-2 bg-panel-recess border border-seam overflow-hidden">
-              <img
-                src={`https://github-readme-streak-stats.herokuapp.com/?user=k-a-r-s-a-n&theme=default&hide_border=true&background=${githubBg}&stroke=${isDark ? "27272A" : "D4D4D8"}&ring=${githubAccent}&fire=${githubAccent}&currStreakLabel=${githubText}&sideNums=${githubText}&sideLabels=${githubText}`}
-                alt="Karwin's GitHub Streak"
-                className="w-full max-w-md object-contain"
-                loading="lazy"
-              />
-            </div>
-          </GlassSurface>
-
-          {/* Contribution Activity Stream */}
-          <GlassSurface className="lg:col-span-12 border border-seam p-6 shadow-xs">
-            <div className="flex items-center justify-between font-mono text-xs text-ink-muted border-b border-seam pb-3 mb-4">
-              <span className="font-bold text-ink">ANNUAL CONTRIBUTION REGISTER</span>
-              <span className="badge-zinc">FEED: MAIN</span>
-            </div>
-
-            <div className="flex justify-center items-center py-4 bg-panel-recess border border-seam overflow-hidden">
-              <img
-                alt="GitHub contribution snake"
-                src="https://raw.githubusercontent.com/k-a-r-s-a-n/k-a-r-s-a-n/output/github-contribution-grid-snake.svg"
-                className="w-full max-w-3xl object-contain"
-                loading="lazy"
-              />
-            </div>
-          </GlassSurface>
-        </div>
       </Reveal>
     </section>
   );
