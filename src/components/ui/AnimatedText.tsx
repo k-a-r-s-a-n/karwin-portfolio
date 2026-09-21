@@ -26,6 +26,43 @@ interface SplitRevealProps {
 const EASE = [0.22, 1, 0.36, 1] as const;
 
 /**
+ * Coordinates entrance animations with the preloader.
+ *
+ * Returns `true` once the element should animate in: `delay` seconds after
+ * the boot curtain lifts — or after `delay` seconds from mount when the
+ * splash was skipped (repeat visit / reduced motion).
+ */
+export function useBootedReveal(delay = 0) {
+  const [revealed, setRevealed] = useState(false);
+
+  useEffect(() => {
+    let armTimer = 0;
+    let failsafe = 0;
+
+    const arm = () => {
+      armTimer = window.setTimeout(() => setRevealed(true), delay * 1000);
+    };
+
+    if (document.documentElement.classList.contains("skip-boot")) {
+      arm();
+      return () => window.clearTimeout(armTimer);
+    }
+
+    window.addEventListener("karwin:booted", arm, { once: true });
+    // Safety net: never leave content hidden if the event is missed.
+    failsafe = window.setTimeout(() => setRevealed(true), 6500 + delay * 1000);
+
+    return () => {
+      window.removeEventListener("karwin:booted", arm);
+      window.clearTimeout(armTimer);
+      window.clearTimeout(failsafe);
+    };
+  }, [delay]);
+
+  return revealed;
+}
+
+/**
  * Masked type reveal: every char/word rises out of an overflow-hidden line,
  * one after another — the "slowly appearing type" effect.
  *

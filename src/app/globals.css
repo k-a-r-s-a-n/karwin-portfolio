@@ -165,11 +165,11 @@ html.cursor-active select {
   transition: width 180ms ease, height 180ms ease, border-color 180ms ease,
     background-color 180ms ease;
 }
-html.cursor-interactive .cursor-ring {
-  width: 52px;
-  height: 52px;
-  border-color: var(--accent);
-  background-color: rgba(201, 241, 88, 0.08);
+.cursor-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
 }
 
 /* ─── Film grain overlay ─── */
@@ -275,10 +275,6 @@ html.cursor-interactive .cursor-ring {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
-  }
-  .cursor-dot,
-  .cursor-ring {
-    display: none;
   }
   html.cursor-active body,
   html.cursor-active a,

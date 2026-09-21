@@ -4,6 +4,7 @@ import React, { useRef } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Float, MeshDistortMaterial, Sparkles } from "@react-three/drei";
 import { motion, useReducedMotion, type MotionValue } from "framer-motion";
+import { useBootedReveal } from "@/components/ui/AnimatedText";
 import * as THREE from "three";
 
 interface SceneContentProps {
@@ -95,13 +96,14 @@ export default function HeroScene({
   scrollProgress: MotionValue<number>;
 }) {
   const shouldReduceMotion = useReducedMotion();
+  const sceneIn = useBootedReveal(0.25);
 
   return (
     <motion.div
       className="absolute inset-0"
       initial={{ opacity: 0, scale: 1.06 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 1.6, ease: [0.22, 1, 0.36, 1], delay: 0.35 }}
+      animate={sceneIn ? { opacity: 1, scale: 1 } : {}}
+      transition={{ duration: 1.6, ease: [0.22, 1, 0.36, 1] }}
       aria-hidden="true"
     >
       <Canvas

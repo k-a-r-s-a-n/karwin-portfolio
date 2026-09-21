@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
+import { useBootedReveal } from "@/components/ui/AnimatedText";
 
 const LINKS = [
   { label: "About", href: "#about", id: "about" },
@@ -17,6 +18,7 @@ export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const navIn = useBootedReveal(0.4);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -60,8 +62,8 @@ export default function Navbar() {
     <>
       <motion.header
         initial={{ y: -70, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 2.2, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+        animate={navIn ? { y: 0, opacity: 1 } : {}}
+        transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
         className="fixed inset-x-0 top-4 z-40 flex justify-center px-4 sm:top-5"
       >
         <nav

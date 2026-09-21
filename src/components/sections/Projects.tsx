@@ -48,7 +48,7 @@ export default function Projects() {
                     <div className="absolute inset-0 bg-gradient-to-t from-bg/70 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
                     <div className="absolute bottom-4 left-4 right-4 flex translate-y-3 items-center justify-between opacity-0 transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100">
                       <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-ink">
-                        Open dossier
+                        View case study
                       </span>
                       <span className="flex h-8 w-8 items-center justify-center rounded-full bg-accent text-bg">
                         <ArrowUpRight size={15} />

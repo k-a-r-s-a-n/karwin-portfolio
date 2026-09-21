@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowDown, ArrowUpRight } from "lucide-react";
 import { GithubIcon } from "@/components/ui/Icons";
-import SplitReveal from "@/components/ui/AnimatedText";
+import SplitReveal, { useBootedReveal } from "@/components/ui/AnimatedText";
 import InteractiveButton from "@/components/ui/InteractiveButton";
 import profileData from "@/data/profile.json";
 
@@ -15,8 +15,16 @@ const HeroScene = dynamic(() => import("@/components/3d/HeroScene"), {
   loading: () => null,
 });
 
+const EASE = [0.22, 1, 0.36, 1] as const;
+
 export default function Hero() {
   const sectionRef = useRef<HTMLElement>(null);
+
+  // Entrances wait for the boot curtain, then cascade.
+  const eyebrowIn = useBootedReveal(0.15);
+  const subIn = useBootedReveal(1.0);
+  const actionsIn = useBootedReveal(1.25);
+  const cueIn = useBootedReveal(1.8);
 
   // Scroll progress of the hero feeds the 3D scene (rotation + parallax).
   const { scrollYProgress } = useScroll({
@@ -44,8 +52,8 @@ export default function Hero() {
         {/* Eyebrow */}
         <motion.p
           initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.0, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+          animate={eyebrowIn ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.7, ease: EASE }}
           className="mb-8 flex items-center gap-3 font-mono text-[11px] uppercase tracking-[0.25em] text-muted"
         >
           <span className="text-accent">✦</span>
@@ -59,21 +67,21 @@ export default function Hero() {
           <SplitReveal
             as="span"
             trigger="booted"
-            delay={0.45}
+            delay={0.35}
             segments={[{ text: "Karwin —" }]}
             className="block text-[clamp(3.2rem,10vw,8.5rem)] text-ink"
           />
           <SplitReveal
             as="span"
             trigger="booted"
-            delay={0.85}
+            delay={0.75}
             segments={[{ text: "systems engineer", className: "italic text-accent" }]}
             className="block text-[clamp(2.4rem,7.5vw,6.5rem)]"
           />
           <SplitReveal
             as="span"
             trigger="booted"
-            delay={1.25}
+            delay={1.15}
             segments={[{ text: "& builder." }]}
             className="block text-[clamp(2.4rem,7.5vw,6.5rem)] text-ink"
           />
@@ -82,20 +90,20 @@ export default function Hero() {
         {/* Sub-copy */}
         <motion.p
           initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.7, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+          animate={subIn ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.8, ease: EASE }}
           className="mt-8 max-w-xl text-base leading-relaxed text-muted sm:text-lg"
         >
-          CS student at VIT Chennai crafting tamper-proof blockchain ledgers,
-          geospatial tools, and LLM-powered agents — with an obsession for
-          interfaces that feel alive.
+          CS student at VIT Chennai building tamper-proof blockchain ledgers,
+          geospatial tools, and LLM agents — obsessed with interfaces that
+          feel alive.
         </motion.p>
 
         {/* Actions */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.9, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+          animate={actionsIn ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.8, ease: EASE }}
           className="pointer-events-auto mt-10 flex flex-wrap items-center gap-4"
         >
           <InteractiveButton as="a" href="#work" variant="primary">
@@ -127,8 +135,8 @@ export default function Hero() {
       {/* Scroll cue */}
       <motion.div
         initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 2.4, duration: 1 }}
+        animate={cueIn ? { opacity: 1 } : {}}
+        transition={{ duration: 1 }}
         className="absolute bottom-8 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center gap-2"
         aria-hidden="true"
       >
